@@ -61,4 +61,8 @@ OBJETO *getKingTable (OBJETO *** const table, int turn);
 //função elimina toda lista da peça para recepção de uma nova
 char** clearList (OBJETO *obj);
 
+//******************* trabalho 8
+//função geradora de lista de movimentos do turno
+void generateList (OBJETO ** collection_list, int total, MOV_PARAM);
+
 #endif

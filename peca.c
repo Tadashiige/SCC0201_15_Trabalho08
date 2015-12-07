@@ -58,10 +58,9 @@ char** sortList (char **list, int size)
  * 	RETORNO:
  * 		char* list - ponteiro para lista de jogadas atualizada
  */
-char** promotion (OBJETO* obj, char* notation, int const turn)
+char** promotion (char** list, int size, char* notation, int const turn)
 {
 	//promoção
-	char** list = NULL;
 	char promo[3] = "X";
 	int i;
 	char white, black;
@@ -85,8 +84,6 @@ char** promotion (OBJETO* obj, char* notation, int const turn)
 			white = '?';black = '?';
 			break;
 		}
-		list = getList (obj);
-		int size = getNList(obj);
 		size++;
 		list = (char**)realloc(list, sizeof(char*)*size);
 		char* newPlay = (char*)malloc(sizeof(char)*(strlen(notation)+1+1));
@@ -96,8 +93,6 @@ char** promotion (OBJETO* obj, char* notation, int const turn)
 		//novo final estabelecido, adicionar a promoção imediatamente antes ao finalizador de strings
 		newPlay[strlen(newPlay)] = (turn == 1)?white:black;
 		list[size - 1] = newPlay;
-		setList(obj, list);
-		setNList(obj, size);
 	}
 
 	return list;
@@ -136,7 +131,8 @@ char** movPeasant (MOV_PARAM)
 		//variável para decidir direção de avanço (cima - baixo)
 		int row_adv = (turn == 1)? -1 : 1;
 
-		list = getList(obj);
+		list = (char**)malloc(sizeof(char*));
+		int size = 0;
 		int i;
 
 		for(i = col - col_border; i <= col + 1 && i < TABLE_COLS; i++)
@@ -158,16 +154,14 @@ char** movPeasant (MOV_PARAM)
 
 					//verificar se há promoção de peça
 					if(row + row_adv == (TABLE_ROWS - 1)*(!turn))
-						list = promotion (obj, notation, turn);
+						list = promotion (list, size, notation, turn);
 					//acrescer a jogada nova para a lista
 					else
 					{
-						setNList(obj, getNList(obj) + 1);
-						list = (char**)realloc(list, sizeof(char*)*getNList(obj));
+						list = (char**)realloc(list, sizeof(char*)*(++size));
 						char *newPlay = (char*)malloc(sizeof(char)*(strlen(notation)+1));
 						strcpy(newPlay, notation);
-						list[getNList(obj) - 1] = newPlay;
-						setList(obj, list);
+						list[size - 1] = newPlay;
 					}
 				}
 
@@ -186,16 +180,14 @@ char** movPeasant (MOV_PARAM)
 
 					//verificar se há promoção de peça
 					if(row + row_adv == (TABLE_ROWS - 1)*(!turn))
-						list = promotion (obj, notation, turn);
+						list = promotion (list, size, notation, turn);
 					//acrescer jogada a lista
 					else
 					{
-						setNList(obj, getNList(obj) + 1);
-						list = (char**)realloc(list, sizeof(char*)*getNList(obj));
+						list = (char**)realloc(list, sizeof(char*)*(++size));
 						char *newPlay = (char*)malloc(sizeof(char)*(strlen(notation)+1));
 						strcpy(newPlay, notation);
-						list[getNList(obj) - 1] = newPlay;
-						setList(obj, list);
+						list[size - 1] = newPlay;
 					}
 				}//if 2 casas
 			}//if i == col
@@ -226,34 +218,28 @@ char** movPeasant (MOV_PARAM)
 
 					//verificar se existe promoção
 					if(row + row_adv == (TABLE_ROWS - 1)*(!turn))
-						list = promotion (obj, notation, turn);
+						list = promotion (list, size, notation, turn);
 					//adicionar nova jogada a lista
 					else
 					{
-						setNList(obj, getNList(obj) + 1);
-						list = (char**)realloc(list, sizeof(char*)*getNList(obj));
+						list = (char**)realloc(list, sizeof(char*)*(++size));
 						char *newPlay = (char*)malloc(sizeof(char)*(strlen(notation)+1));
 						strcpy(newPlay, notation);
-						list[getNList(obj) - 1] = newPlay;
-						setList(obj, list);
+						list[size - 1] = newPlay;
 					}
 					//en passant - apenas modifica a jogada atual com adição de "e.p."
 					if(row + row_adv == 7 - fen->pass[1] + '1' && i == fen->pass[0] - 'a'  &&
 							getType(table[row][i]) == 'P' + (getType(table[row][i]) >= 'a')*32)
 					{
-						list[getNList(obj) - 1] = (char*)realloc(list[getNList(obj) - 1],
-								sizeof(char)*(strlen(list[getNList(obj) - 1])+strlen("e.p.")+1));
-						strcat(list[getNList(obj) - 1], "e.p.");
-						setList(obj, list);
+						list[size - 1] = (char*)realloc(list[size - 1],
+								sizeof(char)*(strlen(list[size- 1])+strlen("e.p.")+1));
+						strcat(list[size- 1], "e.p.");
 					}
 				}//if
 			}//else
 		}//for
-		//readiciona a lista à peça caso ainda não a tenha feito
-		int size = getNList (obj);
-		list = getList(obj);
-		list = sortList (list, size);
-		setList(obj, list);
+		*length = size;
+		list = sortList(list, size);
 	}//if obj != NULL
 	return list;
 }
@@ -279,8 +265,12 @@ char** movPeasant (MOV_PARAM)
  *		int break - valor de encontra de uma pessa, caso deva interromper um looping ao encontrar
  *				uma peça, então break retorna 0, caso contrário 1.
  */
-int __mov (OBJETO *** const table, OBJETO* const obj, int i, int j, int turn, char white, char black)
+int __mov (OBJETO *** const table, OBJETO* const obj, char*** old_list, int *length,
+		int i, int j, int turn, char white, char black)
 {
+	char** list = *old_list;
+	int size = *length;
+
 	//casa alvo está vazio
 	if(table[i][j] == NULL && !riscoRei (table, obj, i, j, turn))
 	{
@@ -293,9 +283,8 @@ int __mov (OBJETO *** const table, OBJETO* const obj, int i, int j, int turn, ch
 
 		char *notation = collision (table, notationFrom, obj, i, j, turn);
 
-		char**list = getList (obj);
 		//procurar por jogada já existente na lista
-		int i, size = getNList(obj);
+		int i;
 		for(i = 0; i < size; i++)
 		{
 			if(!strcmp (list[i], notation))
@@ -306,8 +295,8 @@ int __mov (OBJETO *** const table, OBJETO* const obj, int i, int j, int turn, ch
 		char* newPlay = (char*)malloc(sizeof(char)*(strlen(notation)+1));
 		strcpy(newPlay, notation);
 		list[size - 1] = newPlay;
-		setList(obj, list);
-		setNList(obj, size);
+		*old_list = list;
+		*length = size;
 
 		return 0;
 	}
@@ -326,9 +315,7 @@ int __mov (OBJETO *** const table, OBJETO* const obj, int i, int j, int turn, ch
 			char *notation = collision (table, notationFrom, obj, i, j, turn);
 
 			//procurar por jogada já existente na lista
-			char**list = getList (obj);
-			//procurar por jogada já existente na lista
-			int i, size = getNList(obj);
+			int i;
 			for(i = 0; i < size; i++)
 			{
 				if(!strcmp (list[i], notation))
@@ -339,10 +326,11 @@ int __mov (OBJETO *** const table, OBJETO* const obj, int i, int j, int turn, ch
 			char* newPlay = (char*)malloc(sizeof(char)*(strlen(notation)+1));
 			strcpy(newPlay, notation);
 			list[size - 1] = newPlay;
-			setList(obj, list);
-			setNList(obj, size);
+			*old_list = list;
+			*length = size;
 		}
 	}
+
 	return 1;
 }
 
@@ -370,37 +358,38 @@ char** movKnight (MOV_PARAM)
 		int col = getObjectColumn(obj);
 		int row = 7 - getObjectRow(obj);
 
+		list = (char**)malloc(sizeof(char*));
+		int size = 0;
+
 		int turn = (getType(obj) < 'a')? 1 : 0;
 
 		//o cavalo pode saltar para 8 pontos distintos sem colisão
 		if(col - 2 >= 0 && row - 1 >= 0)
-			__mov(table, obj, row - 1, col - 2, turn, 'N', 'n');
+			__mov(table, obj, &list, &size, row - 1, col - 2, turn, 'N', 'n');
 
 		if(col - 1 >= 0 && row - 2 >= 0)
-			__mov(table, obj, row - 2, col - 1, turn, 'N', 'n');
+			__mov(table, obj, &list, &size, row - 2, col - 1, turn, 'N', 'n');
 
 		if(col + 1 < TABLE_COLS && row - 2 >= 0)
-			__mov(table, obj, row - 2, col + 1, turn, 'N', 'n');
+			__mov(table, obj, &list, &size, row - 2, col + 1, turn, 'N', 'n');
 
 		if(col + 2 < TABLE_COLS && row - 1 >= 0)
-			__mov(table, obj, row - 1, col + 2, turn, 'N', 'n');
+			__mov(table, obj, &list, &size, row - 1, col + 2, turn, 'N', 'n');
 
 		if(col - 2 >= 0 && row + 1 < TABLE_ROWS)
-			__mov(table, obj, row + 1, col - 2, turn, 'N', 'n');
+			__mov(table, obj, &list, &size, row + 1, col - 2, turn, 'N', 'n');
 
 		if(col - 1 >= 0 && row + 2 < TABLE_ROWS)
-			__mov(table, obj, row + 2, col - 1, turn, 'N', 'n');
+			__mov(table, obj, &list, &size, row + 2, col - 1, turn, 'N', 'n');
 
 		if(col + 1 < TABLE_COLS && row + 2 < TABLE_ROWS)
-			__mov(table, obj, row + 2, col + 1, turn, 'N', 'n');
+			__mov(table, obj, &list, &size, row + 2, col + 1, turn, 'N', 'n');
 
 		if(col + 2 < TABLE_COLS && row + 1 < TABLE_ROWS)
-			__mov(table, obj, row + 1, col + 2, turn, 'N', 'n');
+			__mov(table, obj, &list, &size, row + 1, col + 2, turn, 'N', 'n');
 
-		list = getList (obj);
-		int size = getNList (obj);
+		*length = size;
 		list = sortList (list, size);
-		setList(obj, list);
 	}
 	return list;
 }
@@ -429,6 +418,9 @@ char** movBishop (MOV_PARAM)
 		int col = getObjectColumn(obj);
 		int row = 7 - getObjectRow(obj);
 
+		list = (char**)malloc(sizeof(char*));
+		int size = 0;
+
 		int turn = (getType(obj) < 'a')? 1 : 0;
 
 		int i, j;
@@ -436,30 +428,28 @@ char** movBishop (MOV_PARAM)
 		//fazer o percurso para as 4 diagonais a partir do bispo
 		for(i = row - 1, j = col - 1; i >= 0 && j >= 0; i-- , j--)
 		{
-			if(__mov(table, obj, i, j, turn, white, black))
+			if(__mov(table, obj, &list, &size, i, j, turn, white, black))
 				break;
 		}
 		for(i = row + 1, j = col -1; i < TABLE_ROWS && j >= 0; i++, j--)
 		{
-			if(__mov(table, obj, i, j, turn, white, black))
+			if(__mov(table, obj, &list, &size, i, j, turn, white, black))
 				break;
 		}
 		for(i = row - 1, j = col + 1; i >= 0 && j < TABLE_COLS; i--, j++)
 		{
-			if(__mov(table, obj, i, j, turn, white, black))
+			if(__mov(table, obj, &list, &size, i, j, turn, white, black))
 				break;
 		}
 		for(i = row + 1, j = col + 1; i < TABLE_ROWS && j < TABLE_COLS; i++, j++)
 		{
-			if(__mov(table, obj, i, j, turn, white, black))
+			if(__mov(table, obj, &list, &size, i, j, turn, white, black))
 				break;
 		}
 
 		//ordenar a lista
-		list = getList(obj);
-		int size = getNList (obj);
+		*length = size;
 		list = sortList (list, size);
-		setList (obj, list);
 	}
 	return list;
 }
@@ -488,6 +478,9 @@ char** movRook (MOV_PARAM)
 		int col = getObjectColumn(obj);
 		int row = 7 - getObjectRow(obj);
 
+		list = (char**)malloc(sizeof(char*));
+		int size = 0;
+
 		int turn = (getType(obj) < 'a')? 1 : 0;
 
 		int i, j;
@@ -495,22 +488,22 @@ char** movRook (MOV_PARAM)
 		//fazer o percurso para as 4 retas a partir do bispo
 		for(i = row - 1, j = col; i >= 0; i--)
 		{
-			if(__mov(table, obj, i, j, turn, white, black))
+			if(__mov(table, obj, &list, &size, i, j, turn, white, black))
 				break;
 		}
 		for(i = row + 1, j = col; i < TABLE_ROWS; i++)
 		{
-			if(__mov(table, obj, i, j, turn, white, black))
+			if(__mov(table, obj, &list, &size, i, j, turn, white, black))
 				break;
 		}
 		for(i = row, j = col - 1; j >= 0; j--)
 		{
-			if(__mov(table, obj, i, j, turn, white, black))
+			if(__mov(table, obj, &list, &size, i, j, turn, white, black))
 				break;
 		}
 		for(i = row, j = col + 1; j < TABLE_COLS; j++)
 		{
-			if(__mov(table, obj, i, j, turn, white, black))
+			if(__mov(table, obj, &list, &size, i, j, turn, white, black))
 				break;
 		}
 
@@ -534,7 +527,7 @@ char** movRook (MOV_PARAM)
 						{
 							table[7][2] = table[7][4];
 							table[7][4] = NULL;
-							__mov(table, obj, TABLE_ROWS - 1, 3, turn, white, black);
+							__mov(table, obj, &list, &size, TABLE_ROWS - 1, 3, turn, white, black);
 							table[7][4] = table[7][2];
 							table[7][2] = NULL;
 						}
@@ -549,7 +542,7 @@ char** movRook (MOV_PARAM)
 						{
 							table[0][2] = table[0][4];
 							table[0][4] = NULL;
-							__mov(table, obj, 0, 3, turn, white, black);
+							__mov(table, obj, &list, &size, 0, 3, turn, white, black);
 							table[0][4] = table[0][2];
 							table[0][2] = NULL;
 						}
@@ -563,7 +556,7 @@ char** movRook (MOV_PARAM)
 						{
 							table[7][6] = table[7][4];
 							table[7][4] = NULL;
-							__mov(table, obj, TABLE_ROWS - 1, TABLE_COLS - 2, turn, white, black);
+							__mov(table, obj, &list, &size, TABLE_ROWS - 1, TABLE_COLS - 2, turn, white, black);
 							table[7][4] = table[7][6];
 							table[7][6] = NULL;
 						}
@@ -577,7 +570,7 @@ char** movRook (MOV_PARAM)
 						{
 							table[0][6] = table[0][4];
 							table[0][4] = NULL;
-							__mov(table, obj, 0, TABLE_COLS - 2, turn, white, black);
+							__mov(table, obj, &list, &size, 0, TABLE_COLS - 2, turn, white, black);
 							table[0][4] = table[0][6];
 							table[0][6] = NULL;
 						}
@@ -586,10 +579,8 @@ char** movRook (MOV_PARAM)
 			}
 		}
 		//readicionar a lista no objeto
-		list = getList(obj);
-		int size = getNList(obj);
+		*length = size;
 		list = sortList (list, size);
-		setList (obj, list);
 	}
 
 	return list;
@@ -613,14 +604,23 @@ char** movRook (MOV_PARAM)
 */
 char** movQueen (MOV_PARAM)
 {
+	int size;
 	char **listBishop = movBishop(MOV_VALUE);
+	int bishopSize = size;
 	char **listRook = movRook(MOV_VALUE);
+	size += bishopSize;
 
-	char** list = getList(obj);
-	int size = getNList(obj);
-	list = sortList (list, size);
-	setList(obj, list);
+	listBishop = (char**)realloc(listBishop, sizeof(char*)*size);
+	int i;
+	for(i = bishopSize; i < size; i++)
+	{
+		listBishop[i] = listRook[i - bishopSize];
+	}
 
+	char ** list = sortList (listBishop, size);
+	free(listRook);
+
+	*length = size;
 	return list;
 }
 
@@ -652,6 +652,9 @@ char** movKing (MOV_PARAM)
 		int col_border = (col - 1 < 0)? 0 : 1;
 		int row_border = (row - 1 < 0)? 0 : 1;
 
+		list = (char**)malloc(sizeof(char*));
+		int size = 0;
+
 		//variável identificadora de alidos
 		int turn = (getType(obj) < 'a')? 1 : 0;
 
@@ -674,8 +677,6 @@ char** movKing (MOV_PARAM)
 
 						char *notation = collision (table, notationFrom, obj, i, j, turn);
 
-						list = getList(obj);
-						int size = getNList(obj);
 						int count;
 
 						//percorrer a lista em busca de jogada repetida
@@ -693,8 +694,6 @@ char** movKing (MOV_PARAM)
 						strcpy(newPlay, notation);
 
 						list[size - 1] = newPlay;
-						setList(obj, list);
-						setNList(obj, size);
 					}
 					//casa com inimigo
 					else if((getType(table[i][j]) < 96) != turn && !riscoRei(table, obj, i, j, turn))
@@ -708,7 +707,6 @@ char** movKing (MOV_PARAM)
 
 						char *notation = collision (table, notationFrom, obj, i, j, turn);
 
-						list = getList(obj);
 						int size = getNList(obj);
 						int count;
 						for(count = 0; count < size; count++)
@@ -724,8 +722,6 @@ char** movKing (MOV_PARAM)
 						strcpy(newPlay, notation);
 
 						list[size - 1] = newPlay;
-						setList(obj, list);
-						setNList(obj, size);
 					}
 			}
 		}
@@ -746,7 +742,7 @@ char** movKing (MOV_PARAM)
 							table[TABLE_ROWS - 1][1] == NULL && table[TABLE_ROWS - 1][2] == NULL && table[TABLE_ROWS - 1][3] == NULL)
 					{
 						if(!riscoRei(table, obj, TABLE_ROWS - 1, 3, turn))
-							__mov(table, obj, TABLE_ROWS - 1, 2, turn, 'K', 'k');
+							__mov(table, obj, &list, &size, TABLE_ROWS - 1, 2, turn, 'K', 'k');
 					}
 
 					//roque para o lado da rainha em turno preto
@@ -754,7 +750,7 @@ char** movKing (MOV_PARAM)
 							table[0][1] == NULL && table[0][2] == NULL  && table[0][3] == NULL)
 					{
 						if(!riscoRei(table, obj, 0, 3, turn))
-							__mov(table, obj, 0, 2, turn, 'K', 'k');
+							__mov(table, obj, &list, &size, 0, 2, turn, 'K', 'k');
 					}
 
 					//roque para o lado do rei em turno branco
@@ -762,7 +758,7 @@ char** movKing (MOV_PARAM)
 							table[TABLE_ROWS - 1][TABLE_COLS - 3] == NULL && table[TABLE_ROWS - 1][TABLE_COLS - 2] == NULL)
 					{
 						if(!riscoRei(table, obj, TABLE_ROWS - 1, 5, turn))
-							__mov(table, obj, TABLE_ROWS - 1, TABLE_COLS - 2, turn, 'K', 'k');
+							__mov(table, obj, &list, &size, TABLE_ROWS - 1, TABLE_COLS - 2, turn, 'K', 'k');
 					}
 
 					//roque para o lado do rei em turno preto
@@ -770,16 +766,14 @@ char** movKing (MOV_PARAM)
 							table[0][TABLE_COLS - 3] == NULL && table[0][TABLE_COLS - 2] == NULL)
 					{
 						if(!riscoRei(table, obj, 0, 5, turn))
-							__mov(table, obj, 0,  TABLE_COLS - 2, turn, 'K', 'k');
+							__mov(table, obj, &list, &size, 0,  TABLE_COLS - 2, turn, 'K', 'k');
 					}
 				}
 			}
 		}
 		//readicionar a lista no objeto
-		list = getList(obj);
-		int size = getNList(obj);
+		*length = size;
 		list = sortList (list, size);
-		setList (obj, list);
 	}
 
 	return list;
@@ -827,37 +821,55 @@ void printListMov (char** list, int size)
 
 void printListMovPeasant (MOV_PARAM)
 {
+	int size = 0;
 	char** list = movPeasant(MOV_VALUE);
+	setList(obj, list);
+	setNList(obj, size);
 	printListMov(list, getNList(obj));
 }
 
 void printListMovKnight (MOV_PARAM)
 {
+	int size = 0;
 	char** list = movKnight(MOV_VALUE);
+	setList(obj, list);
+	setNList(obj, size);
 	printListMov(list, getNList(obj));
 }
 
 void printListMovBishop (MOV_PARAM)
 {
+	int size = 0;
 	char ** list = movBishop(MOV_VALUE);
+	setList(obj, list);
+	setNList(obj, size);
 	printListMov(list, getNList(obj));
 }
 
 void printListMovRook (MOV_PARAM)
 {
+	int size = 0;
 	char** list = movRook(MOV_VALUE);
+	setList(obj, list);
+	setNList(obj, size);
 	printListMov(list, getNList(obj));
 }
 
 void printListMovQueen (MOV_PARAM)
 {
+	int size = 0;
 	char** list = movQueen(MOV_VALUE);
+	setList(obj, list);
+	setNList(obj, size);
 	printListMov(list, getNList(obj));
 }
 
 void printListMovKing (MOV_PARAM)
 {
+	int size = 0;
 	char ** list = movKing(MOV_VALUE);
+	setList(obj, list);
+	setNList(obj, size);
 	printListMov(list, getNList(obj));
 }
 

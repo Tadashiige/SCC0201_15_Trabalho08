@@ -54,8 +54,8 @@ typedef struct{
 }PLAY;
 
 //PARAMETRO FUNÇÕES MOV
-#define MOV_PARAM OBJETO *** const table, OBJETO * const obj, FEN* fen, char white, char black
-#define MOV_VALUE table, obj, fen, white, black
+#define MOV_PARAM OBJETO *** const table, OBJETO * const obj, int *length, FEN* fen, char white, char black
+#define MOV_VALUE table, obj, &size, fen, white, black
 
 //FUNÇÕES MOVIMENTAÇÃO
 typedef char** (*funcPtr) (MOV_PARAM);

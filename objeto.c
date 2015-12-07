@@ -18,6 +18,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "objeto.h"
+#include "integration.h"
 
 #define POSITION (2 + 1)
 
@@ -382,4 +383,35 @@ char** clearList (OBJETO *obj)
 		list = actualList;
 	}
 	return list;
+}
+
+// ********************************************** Trabalho 08
+
+/**
+ * Função geradora de lista de movimentos da rodada, dada uma lista de peças
+ */
+void generateList (OBJETO ** collection_list, int total, MOV_PARAM)
+{
+	int i;
+	if(collection_list != NULL)
+	{
+		for(i = 0; i < total; i++)
+		{
+			funcPtr funcType;
+			funcType = getFunctionMov(collection_list[i]);
+			OBJETO *obj = collection_list[i];
+			char white = getType(obj) - (getType(obj) >= 'a')*32;
+			char black = getType(obj) + (getType(obj) < 'a')*32;
+
+			clearList(obj);
+
+			int size = 0;
+			char** list = funcType(MOV_VALUE);
+
+			setList(obj, list);
+			setNList(obj, size);
+		}
+		//tratar jogadas coincidentes
+		conflict (collection_list, total);
+	}
 }

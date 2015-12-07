@@ -1,8 +1,8 @@
-all: objeto.o peca.o regra.o FEN.o xadrez.o
-	gcc -o chess objeto.o peca.o regra.o FEN.o xadrez.o -g -pg -lm
+all: objeto.o peca.o regra.o FEN.o IA.o xadrez.o
+	gcc -o chess objeto.o peca.o regra.o FEN.o IA.o xadrez.o -g -pg -lm
 
-all_test: objeto.o peca.o regra.o FEN.o xadrez.o
-	gcc -o chess_test objeto.o peca.o regra.o FEN.o xadrez.o -g -pg -lm
+all_test: objeto.o peca.o regra.o FEN.o IA.o xadrez.o
+	gcc -o chess_test objeto.o peca.o regra.o FEN.o IA.o xadrez.o -g -pg -lm
 
 xadrez.o: xadrez.c
 	gcc -c xadrez.c -g -pg
@@ -18,6 +18,10 @@ regra.o: regra.c
 	
 FEN.o: FEN.c
 	gcc -c FEN.c -g -pg
+	
+IA.o: IA.c
+	gcc -c IA.c -g -pg	
+
 	
 valgrind:
 	valgrind --leak-check=full --show-leak-kinds=all -v ./chess_test

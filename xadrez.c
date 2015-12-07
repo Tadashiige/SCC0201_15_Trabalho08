@@ -21,6 +21,7 @@
 #include "objeto.h"
 #include "peca.h"
 #include "regra.h"
+#include "integration.h"
 
 int main (int argc, char* argv[])
 {
@@ -77,17 +78,14 @@ int main (int argc, char* argv[])
 
 	qsort(collection + white_pieces, pieces_num - white_pieces, sizeof(OBJETO*), &desempate);
 
-	//executar as listagem de movimentos para cada peça criando a lista inicial
-	for(i = 0; i < pieces_num; i++)
-	{
-		funcPtr funcType;
-		funcType = getFunctionMov(collection[i]);
-		OBJETO *obj = collection[i];
-		char white = getType(obj) - (getType(obj) >= 'a')*32;
-		char black = getType(obj) + (getType(obj) < 'a')*32;
+	//conjunto de variáveis que é pedido por define mas não é usado na função generateList.
+	int size;
+	char white;
+	char black;
+	OBJETO *obj = NULL;
 
-		funcType(MOV_VALUE);
-	}
+	//executar as listagem de movimentos para cada peça criando a lista inicial
+	generateList (collection_list, total, MOV_VALUE);
 
 	printFEN(fen);
 
@@ -110,6 +108,7 @@ int main (int argc, char* argv[])
 		changeTurn(fen);
 
 		//tratar as peças a serem consideradas para o próximo jogador
+//printTable (table);
 		printFEN(fen);
 
 		if(fen->turn == 'w')
@@ -126,20 +125,7 @@ int main (int argc, char* argv[])
 		char **list;
 
 		//executar as listagem de movimentos de cada peça para próxima jogada
-		for(i = 0; i < total; i++)
-		{
-			funcPtr funcType;
-			funcType = getFunctionMov(collection_list[i]);
-			OBJETO *obj = collection_list[i];
-			char white = getType(obj) - (getType(obj) >= 'a')*32;
-			char black = getType(obj) + (getType(obj) < 'a')*32;
-
-			clearList(obj);
-
-			list = funcType(MOV_VALUE);
-		}
-		//tratar jogadas coincidentes
-		conflict (collection_list, total);
+		generateList (collection_list, total, MOV_VALUE);
 
 	}//while verifyGameState
 
