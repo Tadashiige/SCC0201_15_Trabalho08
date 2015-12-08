@@ -42,6 +42,7 @@ void fillTable (OBJETO *** table, OBJETO ** const collection, const int pieces_n
 void printTable (OBJETO *** const table);
 
 //função irá avaliar se há risco no movimento da peça contra o rei
+int __riscoRei (OBJETO *** const table, OBJETO * const obj, int row, int col, int turn, int kingRow, int kingCol);
 int riscoRei (OBJETO *** const table, OBJETO * const obj, int row, int col, int turn);
 
 //*********************** trabalho 07

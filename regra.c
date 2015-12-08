@@ -338,7 +338,6 @@ int _verifyDangerDiag(char piece,
 		char peasant,
 		char king,
 		int turn,
-		int dist,
 		int kingRow,
 		int row)
 {
@@ -347,7 +346,7 @@ int _verifyDangerDiag(char piece,
 		if(piece == queen || piece == bishop)
 			return 1;
 
-		if(dist == 2)
+		if(abs(kingRow - row) == 1)
 		{
 			if(piece == peasant)
 			{
@@ -385,7 +384,7 @@ int _verifyDangerDiag(char piece,
  *		risco - valor de risco para o rei, 0 significa o não risco e 1 significa a invalidade por risco
  *
  */
-int __riscoRei (OBJETO *** const table, OBJETO * const obj, int row, int col, int turn)
+int __riscoRei (OBJETO *** const table, OBJETO * const obj, int row, int col, int turn, int kingRow, int kingCol)
 {
 	if(table != NULL && obj != NULL && row >= 0 && col >= 0 && row < TABLE_ROWS && col < TABLE_COLS)
 	{
@@ -400,39 +399,6 @@ int __riscoRei (OBJETO *** const table, OBJETO * const obj, int row, int col, in
 		char bishop = (turn == 0)? 'B' : 'b';
 		char queen = (turn == 0)? 'Q' : 'q';
 		char peasant = (turn == 0)? 'P' : 'p';
-
-		//mudar o tabuleiro para a posição pretendida, assim guardar as variações para poder reverter
-		OBJETO *removido = table[row][col];
-		table[row][col] = obj;
-		int rowVeridico = 7 - getObjectRow(obj);
-		int colVeridico = getObjectColumn(obj);
-		if(row != rowVeridico || col != colVeridico)
-			table[rowVeridico][colVeridico] = NULL;
-
-		//procurar pelo rei
-		for (i = 0; i < TABLE_ROWS; i++)
-		{
-			for( j = 0; j < TABLE_COLS; j++)
-			{
-				if(getType(table[i][j]) == KING)
-					goto out; //sair do looping mais externo do percurso de matriz
-			}
-		}out:; //saida do goto dos loopings pela busca do rei
-
-		//identificar as coordenadas do rei
-		int kingRow = 8;
-		int kingCol = 8;
-		if(j < TABLE_COLS)
-		{
-			kingRow = i;
-			kingCol = j;
-		}
-		else //algo deu errado, rei nao encontrado
-		{
-			table[rowVeridico][colVeridico] = table[row][col];
-			table[row][col] = removido;
-			return 1;
-		}
 
 		int acrsI = -1; //valor de acrescimo de i (linha)
 		int acrsJ = -1; //valor de acrescimo de j (coluna)
@@ -491,7 +457,7 @@ int __riscoRei (OBJETO *** const table, OBJETO * const obj, int row, int col, in
 				{
 					//encontrado uma casa não vazia na diagonal, verificar se a peça oferece risco ao rei
 					if(_verifyDangerDiag(getType(table[i][j]), queen , bishop, peasant, king, turn,
-							(abs(kingRow - i) + abs(kingCol - j)), kingRow, i))
+							kingRow, i))
 						resultado = 1;
 					break;
 				}
@@ -511,16 +477,12 @@ int __riscoRei (OBJETO *** const table, OBJETO * const obj, int row, int col, in
 					(auxObj = table[kingRow + auxRow*2][kingCol + auxCol*1]) != NULL &&
 					(getType(auxObj) == knight))
 				resultado = 1;
-
 			if(TABLE_ROWS > kingRow + auxRow*1 && TABLE_COLS > kingCol + auxCol*2 &&
 					kingRow + auxRow*1 >= 0 && kingCol + auxCol*2 >= 0 &&
 					(auxObj = table[kingRow + auxRow*1][kingCol + auxCol*2]) != NULL &&
 					(getType(auxObj) == knight))
 				resultado = 1;
 		}
-		//reverter o tabuleiro para o estado anterior
-		table[rowVeridico][colVeridico] = table[row][col];
-		table[row][col] = removido;
 
 		return resultado;
 	}
@@ -533,7 +495,51 @@ int __riscoRei (OBJETO *** const table, OBJETO * const obj, int row, int col, in
  */
 int riscoRei (OBJETO *** const table, OBJETO * const obj, int row, int col, int turn)
 {
-	return __riscoRei (table, obj, row, col, turn);
+	//mudar o tabuleiro para a posição pretendida, assim guardar as variações para poder reverter
+	OBJETO *removido = table[row][col];
+	table[row][col] = obj;
+	int rowVeridico = 7 - getObjectRow(obj);
+	int colVeridico = getObjectColumn(obj);
+	if(row != rowVeridico || col != colVeridico)
+		table[rowVeridico][colVeridico] = NULL;
+
+	char KING = (turn == 1)? 'K' : 'k';
+
+	int i, j;
+	//procurar pelo rei
+	for (i = 0; i < TABLE_ROWS; i++)
+	{
+		for( j = 0; j < TABLE_COLS; j++)
+		{
+			if(getType(table[i][j]) == KING)
+				goto out; //sair do looping mais externo do percurso de matriz
+		}
+	}out:; //saida do goto dos loopings pela busca do rei
+
+	//identificar as coordenadas do rei
+	int kingRow = 8;
+	int kingCol = 8;
+	if(j < TABLE_COLS)
+	{
+		kingRow = i;
+		kingCol = j;
+	}
+	else //algo deu errado, rei nao encontrado
+	{
+		table[rowVeridico][colVeridico] = table[row][col];
+		table[row][col] = removido;
+		return 1;
+	}
+	int res =  __riscoRei (table, obj, row, col, turn, kingRow, kingCol);
+
+	//reverter o tabuleiro para o estado anterior
+	table[rowVeridico][colVeridico] = table[row][col];
+	table[row][col] = removido;
+
+//printf("%c[%d][%d] -> [%d][%d]\tperigo? %s\n", getType(obj), 7-getObjectRow(obj), getObjectColumn(obj), row, col,
+//		(res)?"sim":"não");
+
+	return res;
 	//int result = __riscoRei (table, obj, row, col, turn);
 	//if(result) printf("rei em perigo_[%d][%d]\n", row, col);
 	//return result;
@@ -579,27 +585,24 @@ PLAY inputPlay (FEN const* fen, OBJETO *** const table, int turn, int fullTurn)
 			//coordenadas válidas e peça válida para o turno
 			if(col >= 0 && col < TABLE_COLS && row >= 0 && row < TABLE_ROWS &&
 					table[row][col] != NULL &&
-					(getType(table[row][col]) - 'a' >= 0) == !turn)
+					(getType(table[row][col]) < 'a') == turn)
 			{
 				int i;
 				char **list = getList (table[row][col]);
 				int nList = getNList (table[row][col]);
-
-				int adj = (getType(table[row][col]) == 'p' - turn * 32);
-
 				//buscar jogada listada nas possibilidades
 				for(i = 0; i < nList; i++)
 				{
 					//ajuste para comparação, caso haja promoção na notação ela não termina em número, nem é en passant.
-					int adjList = adj && (list[i][strlen(list[i]) - 1] >= 'B' && list[i][strlen(list[i]) - 1] <= 'R');
+					int adj = (list[i][strlen(list[i]) - 1] >= 'B' && list[i][strlen(list[i]) - 1] <= 'R');
 					//existe jogada na lista da peça dada pela coordenada do destino
-					if(!strncmp(list[i] + (strlen(list[i]) - 1 - 1) - adjList, &(cmd[2]), 2))
+					if(!strncmp(list[i] + (strlen(list[i]) - 1 - 1 - adj), &(cmd[2]), 2))
 					{
 						play.obj = table[row][col];
 						play.fromRow = row;
 						play.fromCol = col;
-						if(adjList)
-							play.promotion = list[i][strlen(list[i]) - 1] + !turn * 32;
+						if(adj)
+							play.promotion = cmd[strlen(cmd) - 1];
 
 						cmd[4] = '\0';
 						char *newPosition = (char*) malloc(sizeof(char)*(3));

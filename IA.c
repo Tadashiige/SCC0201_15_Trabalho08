@@ -39,35 +39,29 @@ double __metricKingRisc (MOV_PARAM)
 			OBJETO *king = getKingTable(table, turn);
 			OBJETO *kingFoe = getKingTable(table, !turn);
 
-			int kingRow = 7 - getObjectRow(king), kingCol = getObjectColumn(king);
-			int kingFoeRow = 7 - getObjectRow(kingFoe), kingFoeCol = getObjectColumn(kingFoe);
+//			int kingRow = 7 - getObjectRow(king), kingCol = getObjectColumn(king);
+//			int kingFoeRow = 7 - getObjectRow(kingFoe), kingFoeCol = getObjectColumn(kingFoe);
 
 			//verificar ataque pelo Jogador
-			OBJETO *oaux = target;
 			table[i][j] = kingFoe;
-			table[kingFoeRow][kingFoeCol] = king;
-
-			sumAlly += riscoRei(table, kingFoe, i, j, !turn) * ((target == NULL)? 50 :
+			sumAlly += __riscoRei(table, kingFoe, i, j, !turn, i, j) * ((target == NULL)? 50 :
 					(getType(target) < 'a' != turn)?(point(getType(target))):(point(getType(target))/2)
 					);
 
-			table[kingFoeRow][kingFoeCol] = kingFoe;
 			table[i][j] = target;
 
 			//verificar ataque pelo adversário
-			oaux = target;
 			table[i][j] = king;
-			table[kingRow][kingCol] = kingFoe;
 
-			sumFoe += riscoRei(table, king, i, j, turn) * ((target == NULL)? 50 :
-					(getType(target) < 'a' != turn)?(point(getType(target))):(point(getType(target))/2)
+			sumFoe += __riscoRei(table, king, i, j, turn, i, j) * ((target == NULL)? 50 :
+					(getType(target) < 'a' != !turn)?(point(getType(target))):(point(getType(target))/2)
 					);
 
-			table[kingRow][kingCol] = king;
 			table[i][j] = target;
 		}
 	}
-
+//printTable(table);
+//getchar();
 	return sumAlly / ++sumFoe;
 }
 
@@ -309,7 +303,8 @@ int sortPlayWorth (const void *a, const void *b)
 	PLAY_WORTH *objA = *(PLAY_WORTH **)a, *objB = *(PLAY_WORTH**)b;
 	float result = objA->worth - objB->worth;
 	//variação de sinal só ocorre em -1 < 0 < 1, fora isso tanto ceil quanto floor retorno mesmo sinal
-	return (int)ceil(result) + (int)floor(result);
+	//ordenação inversa, primeira posição tem o maior valor
+	return (-1)*((int)ceil(result) + (int)floor(result));
 }
 
 PLAY inputIA (OBJETO **const collectionAlly, OBJETO **const collectionFoe, int ally, int foe, MOV_PARAM)
@@ -357,32 +352,32 @@ PLAY inputIA (OBJETO **const collectionAlly, OBJETO **const collectionFoe, int a
 				if((getType(obj) == 'k' || getType(obj) == 'K' ) && abs(diff = to[1] - getObjectColumn(obj)) > 1)
 				{
 					//roque para rei
-					if(diff < 0)
+					if(diff > 0)
 					{
-						table[row][col - 1] = table[row][TABLE_COLS - 1];
+						table[row][to[1] - 1] = table[row][TABLE_COLS - 1];
 						table[row][TABLE_COLS - 1] = NULL;
 					}
 					//roque para rainha
 					else
 					{
-						table[row][col + 1] = table[row][0];
+						table[row][to[1] + 1] = table[row][0];
 						table[row][0] = NULL;
 					}
 				}
 
 				//movimento de promoção
 				int wordSize = strlen(list[j]);
-				if(list[j][wordSize - 1] >= 'B' && list[j][wordSize - 1] <= 'R')
+				if(list[j][wordSize - 1] >= 'B' + !turn * 32 && list[j][wordSize - 1] <= 'R' + !turn * 32)
 					changeType(obj,
-							(list[j][wordSize - 1] + !turn * 32),
+							(list[j][wordSize - 1]),
 							getFunctionType(list[j][wordSize - 1]));
 
 			// ************* realizar a métrica
 				playsValue = (PLAY_WORTH**)realloc(playsValue, sizeof(PLAY_WORTH*)*++playsSize);
 				PLAY_WORTH* newPlay = (PLAY_WORTH*)malloc(sizeof(PLAY_WORTH));
-printf("tamanho do vetor comparação %d\t%c[%d][%d] calcular ", playsSize, getType(obj), 7 - getObjectRow(obj), getObjectColumn(obj));
+//printf("tamanho do vetor comparação %d\t%c[%d][%d] calcular ", playsSize, getType(obj), 7 - getObjectRow(obj), getObjectColumn(obj));
 				newPlay->worth = metric(MOV_VALUE);
-printf("Metrica: %.8f\n", newPlay->worth);
+//printf("Metrica: %.8f %s\n", newPlay->worth, list[j]);
 				newPlay->obj = obj;
 				newPlay->play = list[j];
 				playsValue[playsSize - 1] = newPlay;
@@ -396,19 +391,19 @@ printf("Metrica: %.8f\n", newPlay->worth);
 					uncaptured(rem);
 
 				//movimento foi roque
-				if(diff != 0)
+				if(abs(diff) > 1)
 				{
 					//roque para rei
-					if(diff < 0)
+					if(diff > 0)
 					{
-						table[row][TABLE_COLS - 1] = table[row][col - 1];
-						table[row][col - 1] = NULL;
+						table[row][TABLE_COLS - 1] = table[row][to[1] - 1];
+						table[row][to[1] - 1] = NULL;
 					}
 					//roque para rainha
 					else
 					{
-						table[row][0] = table[row][col + 1];
-						table[row][col + 1] = NULL;
+						table[row][0] = table[row][to[1] + 1];
+						table[row][to[1] + 1] = NULL;
 					}
 				}
 
@@ -425,12 +420,12 @@ printf("Metrica: %.8f\n", newPlay->worth);
 		//extrair dados para estrutura PLAY
 		qsort(playsValue, playsSize, sizeof(PLAY_WORTH*), &sortPlayWorth);
 
-		play.obj = playsValue[playsSize - 1]->obj;
+		play.obj = playsValue[0]->obj;
 
-		char *paux = playsValue[playsSize - 1]->play;
+		char *paux = playsValue[0]->play;
 
-		play.promotion = (paux[strlen(paux) - 1] >= 'B' && paux[strlen(paux) - 1] <= 'R')?
-				paux[strlen(paux) - 1] + !turn * 32 : '-';
+		play.promotion = (paux[strlen(paux) - 1] >= 'B' + !turn * 32 && paux[strlen(paux) - 1] <= 'R' + !turn * 32)?
+				paux[strlen(paux) - 1] : '-';
 		play.fromRow = 7 - getObjectRow(play.obj);
 		play.fromCol = getObjectColumn(play.obj);
 
@@ -442,7 +437,7 @@ printf("Metrica: %.8f\n", newPlay->worth);
 		newPosition[2] = '\0';
 
 		changePosition(play.obj, newPosition);
-printf("movimentos: %d\tpior metrica: %.8f\tmelhor metrica: %.8f\n", playsSize, playsValue[0]->worth, playsValue[playsSize - 1]->worth);
+//printf("movimentos: %d\tpior metrica: %.8f\tmelhor metrica: %.8f\n", playsSize, playsValue[playsSize - 1]->worth, playsValue[0]->worth);
 		free(TO);
 		for(i = 0; i < playsSize; i++)
 			free(playsValue[i]);

@@ -716,7 +716,7 @@ FEN* updateFEN (FEN* fen, OBJETO *** const table, PLAY play)
 
 	// ********************************** verificar o acréscimo do meio turno
 		//se movimento foi feito de peão ou foi feito uma captura
-	if(getType(play.obj) != 'p' - turn * 32 && getObjectTurn(play.obj) != fen->fullTurn)
+	if(getType(play.obj) != 'p' - turn * 32 && getObjectTurn(play.obj) != fen->fullTurn && play.promotion == '-')
 		fen->halfTurn ++;
 	else
 		fen->halfTurn = 0;

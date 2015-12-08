@@ -142,7 +142,7 @@ printTable (table);
 
 	if(endGame % 2)
 	{
-		fprintf(stdout, "Cheque-mate -- Vitoria: ");
+		fprintf(stdout, "Xeque-mate -- Vitoria: ");
 		//OBS.: o valor de turno esta invertido pq o teste se faz sempre que o turno é virado, então
 			//a vitória se dá para a jogada anterior a inversão
 		if(fen->turn == 'b')

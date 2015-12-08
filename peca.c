@@ -58,9 +58,10 @@ char** sortList (char **list, int size)
  * 	RETORNO:
  * 		char* list - ponteiro para lista de jogadas atualizada
  */
-char** promotion (char** list, int size, char* notation, int const turn)
+char** promotion (char** list, int *length, char* notation, int const turn)
 {
 	//promoção
+	int size = *length;
 	char promo[3] = "X";
 	int i;
 	char white, black;
@@ -93,6 +94,7 @@ char** promotion (char** list, int size, char* notation, int const turn)
 		//novo final estabelecido, adicionar a promoção imediatamente antes ao finalizador de strings
 		newPlay[strlen(newPlay)] = (turn == 1)?white:black;
 		list[size - 1] = newPlay;
+		*length = size;
 	}
 
 	return list;
@@ -199,7 +201,7 @@ char** movPeasant (MOV_PARAM)
 
 					//verificar se há promoção de peça
 					if(row + row_adv == (TABLE_ROWS - 1)*(!turn))
-						list = promotion (list, size, notation, turn);
+						list = promotion (list, &size, notation, turn);
 					//acrescer a jogada nova para a lista
 					else
 					{
@@ -225,7 +227,7 @@ char** movPeasant (MOV_PARAM)
 
 					//verificar se há promoção de peça
 					if(row + row_adv == (TABLE_ROWS - 1)*(!turn))
-						list = promotion (list, size, notation, turn);
+						list = promotion (list, &size, notation, turn);
 					//acrescer jogada a lista
 					else
 					{
@@ -263,7 +265,7 @@ char** movPeasant (MOV_PARAM)
 
 					//verificar se existe promoção
 					if(row + row_adv == (TABLE_ROWS - 1)*(!turn))
-						list = promotion (list, size, notation, turn);
+						list = promotion (list, &size, notation, turn);
 					//adicionar nova jogada a lista
 					else
 					{
@@ -315,38 +317,40 @@ int __mov (OBJETO *** const table, OBJETO* const obj, char*** old_list, int *len
 {
 	char** list = *old_list;
 	int size = *length;
-
 	//casa alvo está vazio
-	if(table[i][j] == NULL && !riscoRei (table, obj, i, j, turn))
+//printf("pretenção ->[%d][%d]\n", i, j);
+	if(table[i][j] == NULL)
 	{
-		char notationFrom[6+2] = {"TTa8"};
-		notationFrom[0] = white;
-		notationFrom[1] = (turn == 1)?white : black;
-		notationFrom[2] += j;
-		notationFrom[3] -= i;
-		notationFrom[5] = '\0';
-
-		char *notation = collision (table, notationFrom, obj, i, j, turn);
-
-		//procurar por jogada já existente na lista
-		int i;
-		for(i = 0; i < size; i++)
+		if(!riscoRei (table, obj, i, j, turn))
 		{
-			if(!strcmp (list[i], notation))
-				return 1;
+			char notationFrom[6+2] = {"TTa8"};
+			notationFrom[0] = white;
+			notationFrom[1] = (turn == 1)?white : black;
+			notationFrom[2] += j;
+			notationFrom[3] -= i;
+			notationFrom[5] = '\0';
+
+			char *notation = collision (table, notationFrom, obj, i, j, turn);
+
+			//procurar por jogada já existente na lista
+			int i;
+			for(i = 0; i < size; i++)
+			{
+				if(!strcmp (list[i], notation))
+					return 0;
+			}
+
+			list = (char**)realloc(list, sizeof(char*)*(++size));
+			char* newPlay = (char*)malloc(sizeof(char)*(strlen(notation)+1));
+			strcpy(newPlay, notation);
+			list[size - 1] = newPlay;
+			*old_list = list;
+			*length = size;
 		}
-
-		list = (char**)realloc(list, sizeof(char*)*(++size));
-		char* newPlay = (char*)malloc(sizeof(char)*(strlen(notation)+1));
-		strcpy(newPlay, notation);
-		list[size - 1] = newPlay;
-		*old_list = list;
-		*length = size;
-
-		return 0;
 	}
 	else
 	{
+
 		//casa alvo tem inimigo
 		if((getType(table[i][j]) < 'a') != turn && !riscoRei (table, obj, i, j, turn))
 		{
@@ -364,7 +368,7 @@ int __mov (OBJETO *** const table, OBJETO* const obj, char*** old_list, int *len
 			for(i = 0; i < size; i++)
 			{
 				if(!strcmp (list[i], notation))
-					return 1;
+					return 0;
 			}
 
 			list = (char**)realloc(list, sizeof(char*)*(++size));
@@ -374,9 +378,10 @@ int __mov (OBJETO *** const table, OBJETO* const obj, char*** old_list, int *len
 			*old_list = list;
 			*length = size;
 		}
+		return 1;
 	}
 
-	return 1;
+	return 0;
 }
 
 /**
@@ -654,7 +659,6 @@ char** movQueen (MOV_PARAM)
 	int bishopSize = size;
 	char **listRook = movRook(MOV_VALUE);
 	size += bishopSize;
-
 	listBishop = (char**)realloc(listBishop, sizeof(char*)*size);
 	int i;
 	for(i = bishopSize; i < size; i++)
@@ -709,7 +713,6 @@ char** movKing (MOV_PARAM)
 			for(i = row - row_border; i <= row + 1 && i < TABLE_ROWS; i++)
 			{
 				//o rei não pode se alto capturar porque é do mesmo tipo do alvo(si)
-				//if(j != col || i != row)
 					//casa vazia
 					if(table[i][j] == NULL && !riscoRei (table, obj, i, j, turn))
 					{
@@ -752,7 +755,6 @@ char** movKing (MOV_PARAM)
 
 						char *notation = collision (table, notationFrom, obj, i, j, turn);
 
-						int size = getNList(obj);
 						int count;
 						for(count = 0; count < size; count++)
 						{

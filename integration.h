@@ -28,6 +28,12 @@ typedef struct objeto OBJETO;
 #define MAX_ROCK (4 + 1)
 #define MAX_PASS (5 + 1)
 
+//estrutura para armazenar dados de uma célula da tabela hash
+typedef struct{
+	unsigned long int cod;
+	int num;
+}HASH;
+
 //estrutura para comportar os dados da notação FEN
 typedef struct{
 	char pieces[MAX_piece];
@@ -36,6 +42,7 @@ typedef struct{
 	char pass[MAX_PASS];
 	int halfTurn;
 	int fullTurn;
+	HASH hash[0];
 }FEN;
 
 //estrutura para manipular ordenações e mudanças dados de endereços reais
