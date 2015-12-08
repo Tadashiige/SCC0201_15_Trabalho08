@@ -39,19 +39,8 @@ int main (int argc, char* argv[])
 	fscanf(stdin, "%d ", &(fen->halfTurn));
 	fscanf(stdin, "%d", &(fen->fullTurn));
 
-	char input[80];
-	char halfTurn = '0' + fen->halfTurn, fullTurn = '0' + fen->fullTurn;
-	strcpy(input, "");
-	strcat(input, fen->pieces);				 		strcat(input, " ");
-	strncat(input, &(fen->turn), 1); 				strcat(input, " ");
-	strcat(input, fen->rock); 						strcat(input, " ");
-	strcat(input, fen->pass); 						strcat(input, " ");
-	strncat(input, &(halfTurn), 1); 				strcat(input, " ");
-	strncat(input, &(fullTurn), 1);
-
-	free(fen);
-
-	fen = createFEN(input);
+	for(i = 0; i < HASH_MAX; i++)
+		fen->hash[i] = createList();
 
 	//****************************************** Inicialização de Tabuleiro
 
@@ -131,7 +120,7 @@ int main (int argc, char* argv[])
 		changeTurn(fen);
 
 		//tratar as peças a serem consideradas para o próximo jogador
-//printTable (table);
+printTable (table);
 		printFEN(fen);
 
 		if(fen->turn == 'w')
