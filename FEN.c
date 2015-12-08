@@ -23,6 +23,7 @@
 #include "peca.h"
 #include "regra.h"
 #include "FEN.h"
+#include "lista.h"
 
 
 //função para retornar a notação de coluna dado coordenada matricial
@@ -524,6 +525,12 @@ FEN* createFEN (char* string)
 	fen->halfTurn = atoi(vaux[4]);
 	fen->fullTurn = atoi(vaux[5]);
 
+	int k;
+	for(k = 0; k < HASH_MAX; k++)
+	{
+		fen->hash[k] = createList();
+	}
+
 	for(i--; i >= 0; i--)
 		free(vaux[i]);
 	free(vaux);
@@ -536,6 +543,12 @@ void deleteFEN (FEN** fen)
 {
 	if(fen != NULL && (*fen) != NULL)
 	{
+		int i;
+		for(i = 0; i < HASH_MAX; i++)
+		{
+			deleteList(&((*fen)->hash[i]));
+		}
+
 		free(*fen);
 		*fen = NULL;
 	}

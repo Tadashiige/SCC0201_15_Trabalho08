@@ -20,6 +20,7 @@
 #include <string.h>
 #include "regra.h"
 #include "FEN.h"
+#include "hash.h"
 #include "objeto.h"
 
 //função definidora de pontuação
@@ -646,7 +647,8 @@ int verifyGameState (OBJETO *** const table, OBJETO **const fullCollection, OBJE
 	return  1 * chequeMate(table, collection, pieces_num, (fen->turn == 'w')?1:0) +
 			2 * regraAfogamento (table, collection, pieces_num, (fen->turn == 'w')?1:0) +
 			4 * regra50movimento (fen) +
-			8 * regraMaterial (fullCollection, fullSize);
+			8 * regraMaterial (fullCollection, fullSize) +
+			16 * regraTriplaRepeticao (table, fen);
 }
 
 /**
@@ -768,6 +770,34 @@ int regraMaterial (OBJETO ** const collection, const int pieces_num)
 		}
 		//O cavalo e Bispo tem os mesmos pontos (325)
 		if( sum == 2*point('K') + point('N'))
+			return 1;
+	}
+	return 0;
+}
+
+/**
+ * Função verifica empate por Tripla Repetição
+ * DESCRIÇÃO:
+ *
+ *
+ * 	PARAMETROS:
+ *		FEN *fen - ponteiro para estrutura da notação fen
+ *
+ * 	RETORNO:
+ * 		int RESULTADO - retorna 1 caso
+ */
+//retorna 1
+int regraTriplaRepeticao (OBJETO *** const table, FEN *fen)
+{
+	if(fen != NULL)
+	{
+		int num;
+		unsigned long long int cod = genCode (table, fen);
+		num = insertHash(fen->hash, cod);
+//printf("codigo Hash: %llu\nnum: %d\n", cod, num);
+		//contagem a partir do Zero implica que existe inserção do codigo, assim será +1
+			//na proxima igual será 1 (0 + 1), assim no 2 existem 3 codigos iguais.
+		if(num > 1)
 			return 1;
 	}
 	return 0;

@@ -1,8 +1,8 @@
-all: objeto.o peca.o regra.o FEN.o IA.o xadrez.o
-	gcc -o chess objeto.o peca.o regra.o FEN.o IA.o xadrez.o -g -pg -lm
+all: objeto.o peca.o node.o lista.o hash.o regra.o FEN.o IA.o xadrez.o
+	gcc -o chess objeto.o peca.o node.o lista.o hash.o regra.o FEN.o IA.o xadrez.o -g -pg -lm
 
-all_test: objeto.o peca.o regra.o FEN.o IA.o xadrez.o
-	gcc -o chess_test objeto.o peca.o regra.o FEN.o IA.o xadrez.o -g -pg -lm
+all_test: objeto.o peca.o node.o lista.o hash.o regra.o FEN.o IA.o xadrez.o
+	gcc -o chess_test objeto.o peca.o node.o lista.o hash.o regra.o FEN.o IA.o xadrez.o -g -pg -lm
 
 xadrez.o: xadrez.c
 	gcc -c xadrez.c -g -pg
@@ -21,6 +21,15 @@ FEN.o: FEN.c
 	
 IA.o: IA.c
 	gcc -c IA.c -g -pg	
+	
+node.o: node.c
+	gcc -c node.c -g -pg
+	
+lista.o: lista.c
+	gcc -c lista.c -g -pg
+	
+hash.o: hash.c
+	gcc -c hash.c -g -pg
 
 	
 valgrind:
