@@ -22,6 +22,7 @@
 #include "peca.h"
 #include "regra.h"
 #include "integration.h"
+#include "IA.h"
 
 int main (int argc, char* argv[])
 {
@@ -94,9 +95,17 @@ int main (int argc, char* argv[])
 	int endGame;
 	while(!(endGame = verifyGameState(table, collection, collection_list, total, pieces_num, fen)))
 	{
-
-		//receber jogada válida do usuário
-		PLAY play = inputPlay (fen, table, ((fen->turn == 'w')? 1 : 0), fen->fullTurn);
+		PLAY play;
+		if(fen->turn == 'w')
+			//receber jogada válida do usuário
+			play = inputPlay (fen, table, ((fen->turn == 'w')? 1 : 0), fen->fullTurn);
+		else
+			//receber jogada da IA
+			play = inputIA (collection_list,
+							(collection_list == collection)?(collection + total): collection,
+							total,
+							pieces_num - total,
+							MOV_VALUE);
 
 		//realizar mudanças das peças dadas pela jogada
 		//OBS.: Nova ordenação do vetor só é necessária quando há promoção de peão, implementado dentro desta função
@@ -108,7 +117,7 @@ int main (int argc, char* argv[])
 		changeTurn(fen);
 
 		//tratar as peças a serem consideradas para o próximo jogador
-//printTable (table);
+printTable (table);
 		printFEN(fen);
 
 		if(fen->turn == 'w')

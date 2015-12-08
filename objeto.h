@@ -37,6 +37,8 @@ void changePosition (OBJETO *obj, char *position);
 //função irá marcar a peça como capturada
 void captured (OBJETO *obj);
 
+void uncaptured (OBJETO *obj);
+
 //funções de gets e sets de atributos
 char getType (OBJETO *obj);
 int getValue (OBJETO *obj);

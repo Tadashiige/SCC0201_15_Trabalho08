@@ -45,4 +45,8 @@ OBJETO ** updateCollection (OBJETO ** collection, int *white_pieces, int *pieces
 //efetivar a jogada na matriz de tabuleiros, modificando outras peças quando necessário, e desativando peças capturadas
 OBJETO ** doPlay(OBJETO *** table, PLAY play, OBJETO ** collection, int white_pieces, int pieces_num, int fullTurn);
 
+// ********************** trabalho 08
+
+char** movPeasantAttack (OBJETO ***const table, OBJETO *const obj, int *length);
+
 #endif

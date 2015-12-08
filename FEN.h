@@ -54,4 +54,8 @@ FEN* updateFEN (FEN* fen, OBJETO *** const table, PLAY play);
 //função irá imprimir a notação FEN
 void printFEN (FEN *fen);
 
+// **************** Trabalho 08
+
+int *getPlayTo (char* play);
+
 #endif

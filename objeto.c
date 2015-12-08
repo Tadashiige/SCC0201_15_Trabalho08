@@ -279,6 +279,14 @@ void captured (OBJETO *obj)
 	}
 }
 
+void uncaptured (OBJETO *obj)
+{
+	if(obj != NULL)
+	{
+		obj->active = 1;
+	}
+}
+
 /**
  * Função para impressão do objeto para depuração
  */

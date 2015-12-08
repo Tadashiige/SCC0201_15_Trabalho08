@@ -599,7 +599,7 @@ PLAY inputPlay (FEN const* fen, OBJETO *** const table, int turn, int fullTurn)
 						play.fromRow = row;
 						play.fromCol = col;
 						if(adjList)
-							play.promotion = list[i][strlen(list[i]) - 1];
+							play.promotion = list[i][strlen(list[i]) - 1] + !turn * 32;
 
 						cmd[4] = '\0';
 						char *newPosition = (char*) malloc(sizeof(char)*(3));

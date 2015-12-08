@@ -742,3 +742,21 @@ void printFEN (FEN *fen)
 	fprintf(stdout, "%d ", fen->halfTurn);
 	fprintf(stdout, "%d\n", fen->fullTurn);
 }
+
+// ******************************************************** Trabalho 08
+
+int *getPlayTo (char* play)
+{
+	int *to;
+	if(play != NULL)
+	{
+		to = (int*)malloc(sizeof(int)*2);
+		int adj = (play[0] == 'p' || play[0] == 'P') ? 1 : 0;
+		if(!(adj && play[strlen(play) - 1] >= 'B' && play[strlen(play) - 1] <= 'R'))
+			adj = 0;
+
+		to[1] = play[strlen(play) - 2 - adj] - 'a';
+		to[0] = '8' - play[strlen(play) - 1 - adj];
+	}
+	return to;
+}

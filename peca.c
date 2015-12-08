@@ -98,6 +98,51 @@ char** promotion (char** list, int size, char* notation, int const turn)
 	return list;
 }
 
+char** movPeasantAttack (OBJETO ***const table, OBJETO *const obj, int *length)
+{
+	//coordenadas matriciais
+	int col = getObjectColumn(obj);
+	int row = 7 - getObjectRow(obj);
+
+	//variável identificadora de aliada
+	int turn = (getType(obj) < 'a')? 1 : 0;
+
+	if(getType(obj) - !turn * 32 != 'P')
+		return NULL;
+
+	char** list = (char**)malloc(sizeof(char*));
+	int size = 0;
+
+	//variável para identificar borda lateral
+	int col_border = (col - 1 < 0)? 0 : 1;
+
+	//variável para decidir direção de avanço (cima - baixo)
+	int row_adv = (turn == 1)? -1 : 1;
+
+	int i;
+	for(i = col - col_border; i <= col + 1 && i < TABLE_COLS; i++)
+	{
+		//buscar campo diagonal de ataque para o peão, sem que arrisque o rei
+		if ( i != col && !riscoRei (table, obj, row + row_adv, i, turn))
+		{
+			char notationFrom[6+2] = {"Paa8"};
+			notationFrom[1] += col;
+			notationFrom[2] += i;
+			notationFrom[3] -= (row + row_adv);
+
+			char *notation = collision (table, notationFrom, obj, row, col, turn);
+
+			list = (char**)realloc(list, sizeof(char*)*(++size));
+			char *newPlay = (char*)malloc(sizeof(char)*(strlen(notation)+1));
+			strcpy(newPlay, notation);
+			list[size - 1] = newPlay;
+		}
+	}
+//printf("peasant Attack_ tamanho: %d\n", size);
+	*length = size;
+	return list;
+}
+
 /**
  * Função irá criar lista de movimentos possível de um peão
  * DESCRIÇÃO:
