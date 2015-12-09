@@ -1,13 +1,20 @@
 /**
- * Saulo Tadashi Iguei NºUsp 7573548
+ * 								Saulo Tadashi Iguei NºUsp 7573548
+ * 							_______________________________________
  *
- * DATA entrega limite: 08/12/15
+ *																**************************************
+ *																*									 *
+ * 																*	DATA entrega limite: 08/12/15	 *
+ *																*									 *
+ * 																*	SCC0201_01 - ICC2 _ Prof. Moacir *
+ * 																*									 *
+ * 																**************************************
  *
- * SCC0201_01 - ICC2 _ Prof. Moacir
+ *	 					Trabalho 6: Xadrez - Parte 1 (Geração de movimentos)
  *
- * Trabalho 6: Xadrez - Parte 1 (Geração de movimentos)
+ * 				>>>>> Trabalho 7: Xadrez -Parte 2 (Implementação de jogabilidade)
  *
- * >>>>> Trabalho 7: Xadrez -Parte 2 (Implementação de jogabilidade)
+ * 			>>>>> >>>>> Trabalho 8: Xadrez - Parte 3 (Implementação de Inteligência Articial)
  */
 
 /*
@@ -31,6 +38,10 @@ char tableColumn (int col)
 {
 	return 'a' + (col - 1);
 }
+
+
+
+
 
 /**
  * Função retorna a função exclusiva para cada tipo de peça
@@ -80,6 +91,10 @@ funcPtr getFunctionType (char type){
 
 	return funcType;
 }
+
+
+
+
 
 /**
  * Função extrai os dados das peças da notação FEN
@@ -169,6 +184,10 @@ OBJETO ** extractTableFEN (char* pieces, int* tam, int* white)
 	return objetos;
 }
 
+
+
+
+
 /**
  * Função retorna coluna da peça em coordenada matricial
  * a posição armazenado é da forma 'char-letra''char-numero', onde letra começa em 'a'(97) e número em '1'(49)
@@ -181,6 +200,10 @@ int getObjectColumn (OBJETO *obj)
 	}
 	return -1;
 }
+
+
+
+
 /**
  * Função retorna linha da peça em coordenada matricial
  * a posição armazenado é da forma 'char-letra''char-numero', onde letra começa em 'a'(97) e número em '1'(49)
@@ -193,6 +216,10 @@ int getObjectRow (OBJETO *obj)
 	}
 	return -1;
 }
+
+
+
+
 
 /**
  * Função retorna a coluna da notação em coordenada matricial
@@ -207,6 +234,10 @@ int getNotationColumn (char *not)
 	}
 	return -1;
 }
+
+
+
+
 /**
  * Função retorna a linha da notação em coordenada matricial
  * a posição armazenado é da forma 'tipo''char-letra''char-numero', onde letra começa em 'a'(97) e número em '1'(49)
@@ -221,6 +252,10 @@ int getNotationRow (char *not)
 	return -1;
 }
 
+
+
+
+
 /**
  * função irá adicionar notação para colisão de peças caso ocorra
  */
@@ -228,6 +263,10 @@ char* collision (OBJETO *** const table, char *notation, OBJETO *const obj, int 
 {
 	return notation;
 }
+
+
+
+
 
 /**
  * Função ira mudar a notação da jogada adicionando a notação para diferenciar jogadas com notações iguais.
@@ -268,6 +307,11 @@ void changePlay (CONFLICT item, int value, int plus)
 
 	*(item.play) = newPlay;
 }
+
+
+
+
+
 
 /**
  *	Função recebe vetor de string com comando repetidos, então adiciona-se aos string a notação de identificação
@@ -357,6 +401,10 @@ void addConflictNotation (CONFLICT* cmd, int ini, int end)
 	}//else
 }
 
+
+
+
+
 /**
  * Funçao irá adicionar notação para colisão de pecas entre peças do vetor
  * DESCRIÇÃO:
@@ -437,6 +485,11 @@ void _conflict (OBJETO ** const collection, int size)
 	}//if collection != NULL size > 0
 }
 
+
+
+
+
+
 /**
  * função irá adicionar notação para colisão de peças após todas as análises de peças
  * DESCRIÇÂO:
@@ -486,7 +539,12 @@ void conflict (OBJETO **const collection, int size)
 	}
 }
 
-//******************************** Trabalho 7
+
+
+
+
+
+// ****************************************** 					Trabalho07
 
 //função irá criar a estrutura que comporta os dados da notação FEN
 FEN* createFEN (char* string)
@@ -538,6 +596,11 @@ FEN* createFEN (char* string)
 	return fen;
 }
 
+
+
+
+
+
 //função irá eliminar a estrutura fen da memória
 void deleteFEN (FEN** fen)
 {
@@ -554,6 +617,10 @@ void deleteFEN (FEN** fen)
 	}
 }
 
+
+
+
+
 //função intercala o turno para próxima jogada
 void changeTurn (FEN *fen)
 {
@@ -565,6 +632,10 @@ void changeTurn (FEN *fen)
 			fen->turn = 'w';
 	}
 }
+
+
+
+
 
 /**
  * função irá atualizar a situação atual do tabuleiro e suas condições
@@ -745,6 +816,10 @@ FEN* updateFEN (FEN* fen, OBJETO *** const table, PLAY play)
 	return fen;
 }
 
+
+
+
+
 //função irá imprimir a notação FEN
 void printFEN (FEN *fen)
 {
@@ -756,17 +831,24 @@ void printFEN (FEN *fen)
 	fprintf(stdout, "%d\n", fen->fullTurn);
 }
 
+
+
+
+
+
+
 // ******************************************************** Trabalho 08
 
+
+//Função extrair coordenada de destino da notação algébrica considerando um possível notação com promoção de peão
 int *getPlayTo (char* play)
 {
 	int *to;
 	if(play != NULL)
 	{
 		to = (int*)malloc(sizeof(int)*2);
-		int adj = (play[0] == 'p' || play[0] == 'P') ? 1 : 0;
-		if(!(adj && play[strlen(play) - 1] >= 'B' && play[strlen(play) - 1] <= 'R'))
-			adj = 0;
+		int turn = (play[strlen(play) - 1] < 'a') ? 1 : 0;
+		int adj = (play[strlen(play) - 1] >= 'B' + !turn * 32 && play[strlen(play) - 1] <= 'R' + !turn * 32);
 
 		to[1] = play[strlen(play) - 2 - adj] - 'a';
 		to[0] = '8' - play[strlen(play) - 1 - adj];

@@ -1,12 +1,20 @@
 /**
- * Saulo Tadashi Iguei NºUsp 7573548
+ * 								Saulo Tadashi Iguei NºUsp 7573548
+ * 							_______________________________________
  *
- * DATA entrega limite: 08/12/15
+ *																**************************************
+ *																*									 *
+ * 																*	DATA entrega limite: 08/12/15	 *
+ *																*									 *
+ * 																*	SCC0201_01 - ICC2 _ Prof. Moacir *
+ * 																*									 *
+ * 																**************************************
  *
- * SCC0201_01 - ICC2 _ Prof. Moacir
+ *	 					Trabalho 6: Xadrez - Parte 1 (Geração de movimentos)
  *
- * Trabalho 6: Xadrez - Parte 1 (Geração de movimentos)
- * >>>>> Trabalho 7: Xadrez -Parte 2 (Implementação de jogabilidade)
+ * 				>>>>> Trabalho 7: Xadrez -Parte 2 (Implementação de jogabilidade)
+ *
+ * 			>>>>> >>>>> Trabalho 8: Xadrez - Parte 3 (Implementação de Inteligência Articial)
  */
 
 /*
@@ -19,6 +27,11 @@
 #include "FEN.h"
 #include "peca.h"
 #include "regra.h"
+
+
+
+
+
 
 /**
  * Função irá ordenar a lista de jogadas
@@ -40,6 +53,11 @@ char** sortList (char **list, int size)
 	qsort(list, size, sizeof(char*), &sortPlay);
 	return list;
 }
+
+
+
+
+
 
 /**
  * Função irá executar a pilhagem de jogada de promoção na lista
@@ -89,8 +107,10 @@ char** promotion (char** list, int *length, char* notation, int const turn)
 		list = (char**)realloc(list, sizeof(char*)*size);
 		char* newPlay = (char*)malloc(sizeof(char)*(strlen(notation)+1+1));
 		strcpy(newPlay, notation);
+
 		//mudar o final de string para adicionar a promoção
 		newPlay[strlen(newPlay) + 1] = '\0';
+
 		//novo final estabelecido, adicionar a promoção imediatamente antes ao finalizador de strings
 		newPlay[strlen(newPlay)] = (turn == 1)?white:black;
 		list[size - 1] = newPlay;
@@ -100,31 +120,58 @@ char** promotion (char** list, int *length, char* notation, int const turn)
 	return list;
 }
 
+
+
+
+
+
+
+
+/**
+ * Função que retorna lista de jogadas com capaz sob ataques pelo peão, mas
+ * não contém os movimentos de avanço.
+ */
 char** movPeasantAttack (OBJETO ***const table, OBJETO *const obj, int *length)
 {
+
 	//coordenadas matriciais
 	int col = getObjectColumn(obj);
 	int row = 7 - getObjectRow(obj);
 
+
+
 	//variável identificadora de aliada
 	int turn = (getType(obj) < 'a')? 1 : 0;
+
+
 
 	if(getType(obj) - !turn * 32 != 'P')
 		return NULL;
 
+
+
 	char** list = (char**)malloc(sizeof(char*));
 	int size = 0;
 
-	//variável para identificar borda lateral
+
+
+	// ********************************								variável para identificar borda lateral
 	int col_border = (col - 1 < 0)? 0 : 1;
 
-	//variável para decidir direção de avanço (cima - baixo)
+
+
+	// ********************************						variável para decidir direção de avanço (cima - baixo)
 	int row_adv = (turn == 1)? -1 : 1;
+
+
+
 
 	int i;
 	for(i = col - col_border; i <= col + 1 && i < TABLE_COLS; i++)
 	{
-		//buscar campo diagonal de ataque para o peão, sem que arrisque o rei
+
+
+		//******************************				buscar campo diagonal de ataque para o peão, sem que arrisque o rei
 		if ( i != col && !riscoRei (table, obj, row + row_adv, i, turn))
 		{
 			char notationFrom[6+2] = {"Paa8"};
@@ -139,11 +186,25 @@ char** movPeasantAttack (OBJETO ***const table, OBJETO *const obj, int *length)
 			strcpy(newPlay, notation);
 			list[size - 1] = newPlay;
 		}
+
+
 	}
-//printf("peasant Attack_ tamanho: %d\n", size);
+
+
 	*length = size;
 	return list;
 }
+
+
+
+
+
+
+
+
+
+
+
 
 /**
  * Função irá criar lista de movimentos possível de um peão
@@ -165,18 +226,26 @@ char** movPeasant (MOV_PARAM)
 	char** list = NULL;
 	if(obj != NULL)
 	{
-		//coordenadas matriciais
+		//******************************************						coordenadas matriciais
 		int col = getObjectColumn(obj);
 		int row = 7 - getObjectRow(obj);
 
-		//variável identificadora de aliada
+
+
+		//******************************************					variável identificadora de aliada
 		int turn = (getType(obj) < 'a')? 1 : 0;
 
-		//variável para identificar borda lateral
+
+
+		//*****************************************					variável para identificar borda lateral
 		int col_border = (col - 1 < 0)? 0 : 1;
 
-		//variável para decidir direção de avanço (cima - baixo)
+
+
+		//*****************************************			variável para decidir direção de avanço (cima - baixo)
 		int row_adv = (turn == 1)? -1 : 1;
+
+
 
 		list = (char**)malloc(sizeof(char*));
 		int size = 0;
@@ -184,14 +253,23 @@ char** movPeasant (MOV_PARAM)
 
 		for(i = col - col_border; i <= col + 1 && i < TABLE_COLS; i++)
 		{
-			//avançar
+
+
+
+			//*****************************************											avançar
+
 			if(i == col)
 			{
-				//avançar 1 casa
+
+
+				// #####################################									avançar 1 casa
+
 				if(table[row + row_adv][i] == NULL &&
 						!riscoRei (table, obj, row + row_adv, i, turn))
 				{
-					//construção de notação
+
+					// ---------------------------------								construção de notação
+
 					char notationFrom[6+2] = {"Paa8"};
 					notationFrom[1] += i;
 					notationFrom[2] += i;
@@ -199,10 +277,15 @@ char** movPeasant (MOV_PARAM)
 
 					char *notation = collision (table, notationFrom, obj, row, col, turn);
 
-					//verificar se há promoção de peça
+
+
+					// ---------------------------------							verificar se há promoção de peça
+
 					if(row + row_adv == (TABLE_ROWS - 1)*(!turn))
 						list = promotion (list, &size, notation, turn);
-					//acrescer a jogada nova para a lista
+
+
+					// ---------------------------------							acrescer a jogada nova para a lista
 					else
 					{
 						list = (char**)realloc(list, sizeof(char*)*(++size));
@@ -212,12 +295,18 @@ char** movPeasant (MOV_PARAM)
 					}
 				}
 
-				//avançar 2 casas - as casas por onde passa e o alvo deve estar vazia, assim como não arriscar o rei
+
+
+				// #####################################
+				//		avançar 2 casas - as casas por onde passa e o alvo deve estar vazia, assim como não arriscar o rei
+
 				if(((turn == 1 && row == 6) || (turn == 0 && row == 1)) &&
 						table[row + row_adv][i] == NULL && table[row + row_adv*2][i] == NULL &&
 						!riscoRei (table, obj, row + row_adv*2, i, turn))
 				{
-					//criar notação para jogada
+
+					// ---------------------------------							criar notação para jogada
+
 					char notationFrom[6+2] = {"Paa8"};
 					notationFrom[1] += i;
 					notationFrom[2] += i;
@@ -225,10 +314,13 @@ char** movPeasant (MOV_PARAM)
 
 					char *notation = collision (table, notationFrom, obj, row, col, turn);
 
-					//verificar se há promoção de peça
+
+					// ---------------------------------						verificar se há promoção de peça
 					if(row + row_adv == (TABLE_ROWS - 1)*(!turn))
 						list = promotion (list, &size, notation, turn);
-					//acrescer jogada a lista
+
+
+					// ---------------------------------						acrescer jogada a lista
 					else
 					{
 						list = (char**)realloc(list, sizeof(char*)*(++size));
@@ -236,17 +328,23 @@ char** movPeasant (MOV_PARAM)
 						strcpy(newPlay, notation);
 						list[size - 1] = newPlay;
 					}
+
 				}//if 2 casas
 			}//if i == col
 
-			//capturar
+			// ******************************************									capturar
 			else
 			{
-				//existe peça na diagonal E ele é inimiga
+
+				// --------------------------------------				existe peça na diagonal E ele é inimiga
+
 				if (((table[row + row_adv][i] != NULL && (getType(table[row + row_adv][i]) < 96) != turn)
 						||
-						//capiturar por en passant
-						//existe peça na lateral E é inimiga, assim como existe por FEN a autorização para tal
+
+						// ------------------------------						capiturar por en passant
+						// ------------------------------
+						// 				existe peça na lateral E é inimiga, assim como existe por FEN a autorização para tal
+
 						(table[row][i] != NULL && (getType(table[row][i]) < 'a') != turn &&
 								(strcmp(fen->pass, "-") &&
 										getType(table[row][i]) == 'P' + (getType(table[row][i]) >= 'a')*32) &&
@@ -255,7 +353,9 @@ char** movPeasant (MOV_PARAM)
 										i == fen->pass[0] - 'a')) &&
 									!riscoRei (table, obj, row + row_adv, i, turn))
 				{
-					//criação da notação
+
+					// ----------------------------------							criação da notação
+
 					char notationFrom[7+2] = {"Paxa8"};
 					notationFrom[1] += col;
 					notationFrom[3] += i;
@@ -263,10 +363,17 @@ char** movPeasant (MOV_PARAM)
 
 					char *notation = collision (table, notationFrom, obj, row, col, turn);
 
-					//verificar se existe promoção
+
+
+					// ----------------------------------							verificar se existe promoção
+
 					if(row + row_adv == (TABLE_ROWS - 1)*(!turn))
 						list = promotion (list, &size, notation, turn);
-					//adicionar nova jogada a lista
+
+
+
+					// ---------------------------------							adicionar nova jogada a lista
+
 					else
 					{
 						list = (char**)realloc(list, sizeof(char*)*(++size));
@@ -274,7 +381,9 @@ char** movPeasant (MOV_PARAM)
 						strcpy(newPlay, notation);
 						list[size - 1] = newPlay;
 					}
-					//en passant - apenas modifica a jogada atual com adição de "e.p."
+
+
+					// ---------------------------------	en passant - apenas modifica a jogada atual com adição de "e.p."
 					if(row + row_adv == 7 - fen->pass[1] + '1' && i == fen->pass[0] - 'a'  &&
 							getType(table[row][i]) == 'P' + (getType(table[row][i]) >= 'a')*32)
 					{
@@ -290,6 +399,18 @@ char** movPeasant (MOV_PARAM)
 	}//if obj != NULL
 	return list;
 }
+
+
+
+
+
+
+
+
+
+
+
+
 
 /**
  * Função padrão para adicionar a jogada pretendida na lista
@@ -317,8 +438,10 @@ int __mov (OBJETO *** const table, OBJETO* const obj, char*** old_list, int *len
 {
 	char** list = *old_list;
 	int size = *length;
-	//casa alvo está vazio
-//printf("pretenção ->[%d][%d]\n", i, j);
+
+
+// ===========================================================							casa alvo está vazio
+
 	if(table[i][j] == NULL)
 	{
 		if(!riscoRei (table, obj, i, j, turn))
@@ -351,7 +474,10 @@ int __mov (OBJETO *** const table, OBJETO* const obj, char*** old_list, int *len
 	else
 	{
 
-		//casa alvo tem inimigo
+
+
+// =====================================================								casa alvo tem inimigo
+
 		if((getType(table[i][j]) < 'a') != turn && !riscoRei (table, obj, i, j, turn))
 		{
 			char notationFrom[7+2] = {"TTxa8"};
@@ -384,6 +510,15 @@ int __mov (OBJETO *** const table, OBJETO* const obj, char*** old_list, int *len
 	return 0;
 }
 
+
+
+
+
+
+
+
+
+
 /**
 * Função irá criar lista de movimentos possível de um cavalo
 * DESCRIÇÃO:
@@ -413,7 +548,11 @@ char** movKnight (MOV_PARAM)
 
 		int turn = (getType(obj) < 'a')? 1 : 0;
 
-		//o cavalo pode saltar para 8 pontos distintos sem colisão
+
+
+// ===================================							o cavalo pode saltar para 8 pontos distintos sem colisão
+
+
 		if(col - 2 >= 0 && row - 1 >= 0)
 			__mov(table, obj, &list, &size, row - 1, col - 2, turn, 'N', 'n');
 
@@ -443,6 +582,18 @@ char** movKnight (MOV_PARAM)
 	}
 	return list;
 }
+
+
+
+
+
+
+
+
+
+
+
+
 
 /*
 * Função irá criar lista de movimentos possível de um bispo
@@ -475,7 +626,10 @@ char** movBishop (MOV_PARAM)
 
 		int i, j;
 
-		//fazer o percurso para as 4 diagonais a partir do bispo
+
+
+// =============================================				fazer o percurso para as 4 diagonais a partir do bispo
+
 		for(i = row - 1, j = col - 1; i >= 0 && j >= 0; i-- , j--)
 		{
 			if(__mov(table, obj, &list, &size, i, j, turn, white, black))
@@ -503,6 +657,16 @@ char** movBishop (MOV_PARAM)
 	}
 	return list;
 }
+
+
+
+
+
+
+
+
+
+
 
 /**
 * Função irá criar lista de movimentos possível de um torre
@@ -535,7 +699,11 @@ char** movRook (MOV_PARAM)
 
 		int i, j;
 
-		//fazer o percurso para as 4 retas a partir do bispo
+
+
+
+// ====================================================				fazer o percurso para as 4 retas a partir do bispo
+
 		for(i = row - 1, j = col; i >= 0; i--)
 		{
 			if(__mov(table, obj, &list, &size, i, j, turn, white, black))
@@ -557,21 +725,34 @@ char** movRook (MOV_PARAM)
 				break;
 		}
 
-		//roque, a roque não será possível para caso o rei esteja em cheque
+
+
+
+
+// ============================================			roque, a roque não será possível para caso o rei esteja em cheque
+
+
 		if(!riscoRei(table, obj, row, col, turn))
 		{
 			OBJETO *king = getKingTable (table, turn);
-			//o roque só será permitido caso dentro da notação FEN haja a legalização
+
+
+			// ********************************		o roque só será permitido caso dentro da notação FEN haja a legalização
 			for(i = 0; i < strlen(fen->rock) && white == 'R'; i++)
 			{
+
 				//OBS.:  para cada roque possível será feita uma substituição da peça para avaliar o risco do rei
 				//Após a análise é feita o retorno do estado anterior do tabuleiro.
 				if((fen->rock[i] < 96) == turn)
 				{
-					//roque para o lado da rainha para o turno branco
+
+					// ------------------------							roque para o lado da rainha para o turno branco
+
+
 					if(fen->rock[i] == 'Q' && getObjectColumn(king) == 0 && 7 - getObjectRow(king) == TABLE_ROWS - 1 &&
 							table[TABLE_ROWS - 1][1] == NULL && table[TABLE_ROWS - 1][2] == NULL  && table[TABLE_ROWS - 1][3] == NULL)
 					{
+
 						if(!riscoRei(table, king, TABLE_ROWS - 1, 3, turn) &&
 								!riscoRei(table, king, TABLE_ROWS - 1, 2, turn))
 						{
@@ -581,12 +762,15 @@ char** movRook (MOV_PARAM)
 							table[7][4] = table[7][2];
 							table[7][2] = NULL;
 						}
+
 					}
 
-					//roque para o lado da rainha para o turno preto
+
+					// -------------------------------------				roque para o lado da rainha para o turno preto
 					else if(fen->rock[i] == 'q' && getObjectColumn(obj) == 0 && 7 - getObjectRow(obj) == 0 &&
 							table[0][1] == NULL && table[0][2] == NULL && table[0][3] == NULL)
 					{
+
 						if(!riscoRei(table, king, 0, 3, turn) &&
 								!riscoRei (table, king, 0, 2, turn))
 						{
@@ -596,12 +780,15 @@ char** movRook (MOV_PARAM)
 							table[0][4] = table[0][2];
 							table[0][2] = NULL;
 						}
+
 					}
 
-					//roque para o lado do reio para o turno branco
+
+					// ---------------------------------------				roque para o lado do reio para o turno branco
 					else if(fen->rock[i] == 'K' && getObjectColumn(obj) == TABLE_COLS - 1 && 7 - getObjectRow (obj) == TABLE_ROWS - 1 &&
 							table[TABLE_ROWS - 1][TABLE_COLS - 3] == NULL && table[TABLE_ROWS - 1][TABLE_COLS - 2] == NULL)
 					{
+
 						if(!riscoRei(table, king, TABLE_ROWS - 1, 5, turn))
 						{
 							table[7][6] = table[7][4];
@@ -610,12 +797,15 @@ char** movRook (MOV_PARAM)
 							table[7][4] = table[7][6];
 							table[7][6] = NULL;
 						}
+
 					}
 
-					//roque para o lado do rei para turno branco
+
+					// ---------------------------------------					roque para o lado do rei para turno branco
 					else if(fen->rock[i] == 'k' && getObjectColumn(obj) == TABLE_COLS - 1  && 7 - getObjectRow(obj) == 0 &&
 							table[0][TABLE_COLS - 3] == NULL && table[0][TABLE_COLS - 2] == NULL)
 					{
+
 						if(!riscoRei(table, king, 0, 5, turn))
 						{
 							table[0][6] = table[0][4];
@@ -624,6 +814,7 @@ char** movRook (MOV_PARAM)
 							table[0][4] = table[0][6];
 							table[0][6] = NULL;
 						}
+
 					}
 				}
 			}
@@ -635,6 +826,15 @@ char** movRook (MOV_PARAM)
 
 	return list;
 }
+
+
+
+
+
+
+
+
+
 
 /**
 * Função irá criar lista de movimentos possível de uma rainha
@@ -673,6 +873,20 @@ char** movQueen (MOV_PARAM)
 	return list;
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 /**
 * Função irá criar lista de movimentos possível de um rei
 * DESCRIÇÃO:
@@ -693,9 +907,13 @@ char** movKing (MOV_PARAM)
 	char** list = NULL;
 	if(obj != NULL)
 	{
+
+
 		//coordenadas de índices matricias da peça
 		int col = getObjectColumn(obj);
 		int row = 7 - getObjectRow(obj);
+
+
 
 		//controle de borda para looping
 		int col_border = (col - 1 < 0)? 0 : 1;
@@ -704,16 +922,28 @@ char** movKing (MOV_PARAM)
 		list = (char**)malloc(sizeof(char*));
 		int size = 0;
 
+
+
 		//variável identificadora de alidos
 		int turn = (getType(obj) < 'a')? 1 : 0;
+
+
+// ================================================================					Movimento do rei
+
 
 		int j, i;
 		for(j = col - col_border; j <= col + 1 && j < TABLE_COLS; j++)
 		{
 			for(i = row - row_border; i <= row + 1 && i < TABLE_ROWS; i++)
 			{
+
+
+
 				//o rei não pode se alto capturar porque é do mesmo tipo do alvo(si)
-					//casa vazia
+
+
+					// ******************************************								casa vazia
+
 					if(table[i][j] == NULL && !riscoRei (table, obj, i, j, turn))
 					{
 						char notationFrom[6+2] = {"TTa8"};
@@ -743,7 +973,11 @@ char** movKing (MOV_PARAM)
 
 						list[size - 1] = newPlay;
 					}
-					//casa com inimigo
+
+
+
+					// **************************************************						casa com inimigo
+
 					else if((getType(table[i][j]) < 96) != turn && !riscoRei(table, obj, i, j, turn))
 					{
 						char notationFrom[7+2] = {"TTxa8"};
@@ -773,18 +1007,28 @@ char** movKing (MOV_PARAM)
 			}
 		}
 
-		//roque
+
+// ===========================================================								roque
+
+
 		//para o roque o rei não deve estar em cheque, entrar em cheque ou passar por casas sob ataque
 		if(!riscoRei(table, obj, row, col, turn))
 		{
+
+
 			for(i = 0; i < strlen(fen->rock); i++)
 			{
+
+
 				//OBS.:  para cada roque possível será feita uma substituição da peça para avaliar o risco do rei
 				//Após a análise é feita o retorno do estado anterior do tabuleiro.
 				if((fen->rock[i] < 96) == turn)
 				{
 					OBJETO *auxKing;
-					//roque para o lado da rainha em turno branco
+
+
+					// ***************************************			roque para o lado da rainha em turno branco
+
 					if(fen->rock[i] == 'Q' && getObjectColumn(obj) == 4 &&
 							table[TABLE_ROWS - 1][1] == NULL && table[TABLE_ROWS - 1][2] == NULL && table[TABLE_ROWS - 1][3] == NULL)
 					{
@@ -792,7 +1036,10 @@ char** movKing (MOV_PARAM)
 							__mov(table, obj, &list, &size, TABLE_ROWS - 1, 2, turn, 'K', 'k');
 					}
 
-					//roque para o lado da rainha em turno preto
+
+
+					//****************************************				roque para o lado da rainha em turno preto
+
 					else if(fen->rock[i] == 'q' && getObjectColumn(obj) == 4 &&
 							table[0][1] == NULL && table[0][2] == NULL  && table[0][3] == NULL)
 					{
@@ -800,7 +1047,10 @@ char** movKing (MOV_PARAM)
 							__mov(table, obj, &list, &size, 0, 2, turn, 'K', 'k');
 					}
 
-					//roque para o lado do rei em turno branco
+
+
+					// ***************************************				roque para o lado do rei em turno branco
+
 					else if(fen->rock[i] == 'K' && getObjectColumn(obj) == 4 &&
 							table[TABLE_ROWS - 1][TABLE_COLS - 3] == NULL && table[TABLE_ROWS - 1][TABLE_COLS - 2] == NULL)
 					{
@@ -808,7 +1058,9 @@ char** movKing (MOV_PARAM)
 							__mov(table, obj, &list, &size, TABLE_ROWS - 1, TABLE_COLS - 2, turn, 'K', 'k');
 					}
 
-					//roque para o lado do rei em turno preto
+
+					// ***************************************				roque para o lado do rei em turno preto
+
 					else if(fen->rock[i] == 'k' && getObjectColumn(obj) == 4 &&
 							table[0][TABLE_COLS - 3] == NULL && table[0][TABLE_COLS - 2] == NULL)
 					{
@@ -825,6 +1077,14 @@ char** movKing (MOV_PARAM)
 
 	return list;
 }
+
+
+
+
+
+
+
+
 
 /**
  * função irá imprimir todas tokens da lista, ou seja, todos os movimentos possíveis.
@@ -846,7 +1106,6 @@ void printListMov (char** list, int size)
 		int i;
 		for(i = 0; i < size; i++)
 		{
-			//fprintf(stdout, "teste impressao: %s\t", list[i] + 1);
 			char *paux = list[i] + 1;
 			char type = list[i][1];
 			int plus = 0;
@@ -860,6 +1119,15 @@ void printListMov (char** list, int size)
 		}
 	}
 }
+
+
+
+
+
+
+
+
+
 
 /*
  *Coleção de funções para impressão de jogadas para cada tipo de peça
@@ -920,7 +1188,28 @@ void printListMovKing (MOV_PARAM)
 	printListMov(list, getNList(obj));
 }
 
+
+
+
+
+
+
+
+
+
 //********************************** trabalho 07
+
+
+
+
+
+
+
+
+
+
+
+
 /**
  * Função irá efetivar a jogada e aplicar as mudanças dela decorrente
  *
@@ -948,22 +1237,31 @@ OBJETO ** doPlay(OBJETO *** table, PLAY play, OBJETO ** collection, int white_pi
 		int row = 7 - getObjectRow(play.obj);
 		int col = getObjectColumn(play.obj);
 
-		//jogada é uma captura
+// ===================================================================						jogada é uma captura
 		if(table[row][col] != NULL)
 		{
 			captured(table[row][col]);
 			setObjectTurn(play.obj, fullTurn);
 		}
 
-		//mover no tabuleiro
+
+
+// ===================================================================							mover no tabuleiro
+
 		table[row][col] = play.obj;
 		table[play.fromRow][play.fromCol] = NULL;
 
-		//movimento de roque
+
+
+// ===================================================================							movimento de roque
+
 		int diff;
 		if((getType(play.obj) == 'k' || getType(play.obj) == 'K' ) && abs(diff = play.fromCol - getObjectColumn(play.obj)) > 1)
 		{
-			//roque para rei
+
+
+			// *******************************************************							roque para rei
+
 			if(diff < 0)
 			{
 				table[7 - getObjectRow(play.obj)][getObjectColumn(play.obj) - 1] = table[7 - getObjectRow(play.obj)][TABLE_COLS - 1];
@@ -975,7 +1273,11 @@ OBJETO ** doPlay(OBJETO *** table, PLAY play, OBJETO ** collection, int white_pi
 				newPosition[0] -= 1;
 				changePosition(table[7 - getObjectRow(play.obj)][getObjectColumn(play.obj) - 1], newPosition);
 			}
-			//roque para rainha
+
+
+
+			// *******************************************************							roque para rainha
+
 			else
 			{
 				table[7 - getObjectRow(play.obj)][getObjectColumn(play.obj) + 1] = table[7 - getObjectRow(play.obj)][0];
@@ -989,7 +1291,12 @@ OBJETO ** doPlay(OBJETO *** table, PLAY play, OBJETO ** collection, int white_pi
 			}
 		}
 
-		//nova ordenação só é necessária quando há promoção de peão, caso contrário a ordem é mantida
+
+
+
+// ===================================================================
+		//					nova ordenação só é necessária quando há promoção de peão, caso contrário a ordem é mantida
+
 		char turn = (getType(play.obj) == 'P') ? 'w' : 'b';
 		if(play.promotion != '-')
 		{
@@ -1004,6 +1311,16 @@ OBJETO ** doPlay(OBJETO *** table, PLAY play, OBJETO ** collection, int white_pi
 	}
 	return collection;
 }
+
+
+
+
+
+
+
+
+
+
 
 /**
  * Função irá atualizar a coleção de peças segundo a jogada anterior
@@ -1029,15 +1346,23 @@ OBJETO ** updateCollection (OBJETO ** collection, int *white_pieces, int *pieces
 		int newSize = *pieces_num;
 		for(i = 0; i < *pieces_num; i++)
 		{
-			//manter armazenado as peças ainda ativas
+
+
+			// **************************************						manter armazenado as peças ainda ativas
+
 			if(!getActive(collection[i]))
 			{
 				//peças desativadas
 				int j;
-				//deletar a peça desativada
+
+
+				// ----------------------------------						deletar a peça desativada
 				deleteObject(&(collection[i]));
 
-				//puxar a lista para diminuir em uma posição, a que foi deletada
+
+
+
+				// ----------------------------------			puxar a lista para diminuir em uma posição, a que foi deletada
 				for(j = i; j + 1 < *pieces_num; j++)
 					collection[j] = collection[j + 1];
 
@@ -1047,6 +1372,7 @@ OBJETO ** updateCollection (OBJETO ** collection, int *white_pieces, int *pieces
 			}
 
 		}
+
 
 		//armazenar os novos dados
 		*white_pieces -= ((*pieces_num - newSize) * !turn); //se o turno é do Preto, então a peça capturada é a Branca

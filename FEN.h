@@ -1,13 +1,20 @@
 /**
- * Saulo Tadashi Iguei NºUsp 7573548
+ * 								Saulo Tadashi Iguei NºUsp 7573548
+ * 							_______________________________________
  *
- * DATA entrega limite: 08/12/15
+ *																**************************************
+ *																*									 *
+ * 																*	DATA entrega limite: 08/12/15	 *
+ *																*									 *
+ * 																*	SCC0201_01 - ICC2 _ Prof. Moacir *
+ * 																*									 *
+ * 																**************************************
  *
- * SCC0201_01 - ICC2 _ Prof. Moacir
+ *	 					Trabalho 6: Xadrez - Parte 1 (Geração de movimentos)
  *
- * Trabalho 6: Xadrez - Parte 1 (Geração de movimentos)
+ * 				>>>>> Trabalho 7: Xadrez -Parte 2 (Implementação de jogabilidade)
  *
- * >>>>> Trabalho 7: Xadrez -Parte 2 (Implementação de jogabilidade)
+ * 			>>>>> >>>>> Trabalho 8: Xadrez - Parte 3 (Implementação de Inteligência Articial)
  */
 
 /*
@@ -41,7 +48,11 @@ char* collision (OBJETO *** const table, char *notation, OBJETO *const obj, int 
 //função irá adicionar notação para colisão de peças após todas as análises de peças
 void conflict (OBJETO **const collection, int size);
 
+
+
+
 //****************** trabalho 7
+
 //função irá criar a estrutura que comporta os dados da notação FEN
 FEN* createFEN (char* string);
 
@@ -54,8 +65,12 @@ FEN* updateFEN (FEN* fen, OBJETO *** const table, PLAY play);
 //função irá imprimir a notação FEN
 void printFEN (FEN *fen);
 
+
+
+
 // **************** Trabalho 08
 
+//extrair coordenada matricial de destino
 int *getPlayTo (char* play);
 
 #endif

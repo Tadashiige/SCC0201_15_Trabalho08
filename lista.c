@@ -1,3 +1,27 @@
+/**
+ * 								Saulo Tadashi Iguei NºUsp 7573548
+ * 							_______________________________________
+ *
+ *																**************************************
+ *																*									 *
+ * 																*	DATA entrega limite: 08/12/15	 *
+ *																*									 *
+ * 																*	SCC0201_01 - ICC2 _ Prof. Moacir *
+ * 																*									 *
+ * 																**************************************
+ *
+ *	 					Trabalho 6: Xadrez - Parte 1 (Geração de movimentos)
+ *
+ * 				>>>>> Trabalho 7: Xadrez -Parte 2 (Implementação de jogabilidade)
+ *
+ * 			>>>>> >>>>> Trabalho 8: Xadrez - Parte 3 (Implementação de Inteligência Articial)
+ */
+
+
+/*
+ *	Biblioteca do TAD de lista ligada - circular
+ *
+ */
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -6,11 +30,24 @@
 #include "lista.h"
 
 
+// *************************************************************************************
+
+//OBS.: séries de funções padrões de listas que DESPENÇAM documentação por ser genéricas
+
+// As duas últimas funções são específico com hashing e possuem documentação
+
+// *************************************************************************************
+
+
+
 struct LIST{
 	NODE* head;
 	NODE* tail;
 	int size;
 };
+
+
+
 
 LIST *createList ()
 {
@@ -24,6 +61,9 @@ LIST *createList ()
 
 		return list;
 }
+
+
+
 
 void deleteList (LIST **list)
 {
@@ -44,6 +84,9 @@ void deleteList (LIST **list)
 		*list = NULL;
 	}
 }
+
+
+
 
 void addNode (LIST *list, NODE *new)
 {
@@ -66,6 +109,9 @@ void addNode (LIST *list, NODE *new)
 	}
 }
 
+
+
+
 NODE* getLast (LIST* list)
 {
 	if( list != NULL)
@@ -74,6 +120,10 @@ NODE* getLast (LIST* list)
 	}
 	return NULL;
 }
+
+
+
+
 
 NODE *remLast (LIST* list)
 {
@@ -102,10 +152,22 @@ NODE *remLast (LIST* list)
 	return NULL;
 }
 
+
+
+
+
+// *************************************** 	ESPECÍFICO DE HASHING ********************************************* //
+
+
+/**
+ * Função verifica se o hashing dos nós é igual a da comparação
+ */
 NODE *searchHash (LIST *list, unsigned long long int cod)
 {
 	if(list != NULL && list->size > 0)
 	{
+		//percorrer a lista em busca do nó com o hashing igual a da comparação
+
 		NODE* paux = list->head;
 		do
 		{
@@ -113,43 +175,56 @@ NODE *searchHash (LIST *list, unsigned long long int cod)
 				return paux;
 
 			paux = getNext(paux);
+
 		}while(paux != list->head);
 	}
 	return NULL;
 }
 
+
+
+
+
+
+/**
+ * Função verifica se existe o código em algum nó da lista. Caso sim
+ * incrementa a ocorrencia dela no nó, caso contrário adicionar um
+ * novo nó com o hashing dado.
+ */
 int addHash (LIST *list, unsigned long long int cod)
 {
 	if(list != NULL)
 	{
-//printf("inserir hash %llu\n", cod);
+
+		//a lista vazia. Pede-se um novo nó
 		if(list->size == 0)
 		{
 			NODE *new = createNode();
 			setHASH(new, cod);
 			addNode(list, new);
-//printf("inserido\n");
 		}
+
 		else
 		{
+			//percorrer a lista para verificar cada nó
 			NODE* paux = list->head;
 			int sum;
 			do
 			{
+				//tentar incrementar a ocorrencia do hashing. Retorna Zero se o hashing divergir.
 				if((sum = sumHash(paux, cod)))
 					break;
 
 				paux = getNext(paux);
 			}while(paux != list->head);
 
+			//se não houve hashing na lista adicionar como novo nó
 			if(!sum)
 			{
 				NODE *new = createNode();
 				setHASH(new, cod);
 				addNode(list, new);
-//printf("inserido\n");
 			}
-//printf("soma: %d\n", sum);
 			return sum;
 		}
 	}

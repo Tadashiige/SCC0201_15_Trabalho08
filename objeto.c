@@ -1,13 +1,20 @@
 /**
- * Saulo Tadashi Iguei NºUsp 7573548
+ * 								Saulo Tadashi Iguei NºUsp 7573548
+ * 							_______________________________________
  *
- * DATA entrega limite: 08/12/15
+ *																**************************************
+ *																*									 *
+ * 																*	DATA entrega limite: 08/12/15	 *
+ *																*									 *
+ * 																*	SCC0201_01 - ICC2 _ Prof. Moacir *
+ * 																*									 *
+ * 																**************************************
  *
- * SCC0201_01 - ICC2 _ Prof. Moacir
+ *	 					Trabalho 6: Xadrez - Parte 1 (Geração de movimentos)
  *
- * Trabalho 6: Xadrez - Parte 1 (Geração de movimentos)
+ * 				>>>>> Trabalho 7: Xadrez -Parte 2 (Implementação de jogabilidade)
  *
- * >>>>> Trabalho 7: Xadrez -Parte 2 (Implementação de jogabilidade)
+ * 			>>>>> >>>>> Trabalho 8: Xadrez - Parte 3 (Implementação de Inteligência Articial)
  */
 
 /*
@@ -22,6 +29,8 @@
 
 #define POSITION (2 + 1)
 
+
+
 // Strutura de objeto é abstrato para usuário da biblioteca
 struct objeto {
 	char type;
@@ -33,6 +42,12 @@ struct objeto {
 	int nList;
 	int fullTurn;
 };
+
+
+
+
+
+
 
 /**
  * Função cria e aloca o objeto na memória
@@ -81,6 +96,14 @@ OBJETO* createObject (char type, char *position,  funcPtr mov)
 	return new;
 }
 
+
+
+
+
+
+
+
+
 /**
  *	Função irá apagar e liberar o objeto da memória
  *
@@ -113,6 +136,12 @@ void deleteObject (OBJETO **obj)
 	}
 }
 
+
+
+
+
+
+
 //funções de gets de atributos
 char getType (OBJETO *obj)
 {
@@ -134,6 +163,18 @@ char* getPosition (OBJETO *obj)
 		return obj->position;
 	return NULL;
 }
+
+
+
+
+
+
+
+
+
+
+
+
 
 /**
  * Função irá retornar ponteiro para função de movimento...
@@ -202,6 +243,17 @@ void setObjectTurn (OBJETO *obj, int fullTurn)
 	}
 }
 
+
+
+
+
+
+
+
+
+
+
+
 /**
  *	Função irá mudar o tipo e a função movimentação da peça
  *
@@ -232,6 +284,13 @@ void changeType (OBJETO *obj, char type, funcPtr mov)
 	}
 }
 
+
+
+
+
+
+
+
 /**
  *	Função irá mudar a posição da peça
  *
@@ -259,6 +318,18 @@ void changePosition (OBJETO *obj, char *position)
 	}
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
 /**
  *	Função para registrar a peça capiturada
  *
@@ -279,6 +350,16 @@ void captured (OBJETO *obj)
 	}
 }
 
+
+
+
+
+
+
+
+/**
+ * Função volta a peça para forma ativa.
+ */
 void uncaptured (OBJETO *obj)
 {
 	if(obj != NULL)
@@ -286,6 +367,13 @@ void uncaptured (OBJETO *obj)
 		obj->active = 1;
 	}
 }
+
+
+
+
+
+
+
 
 /**
  * Função para impressão do objeto para depuração
@@ -297,6 +385,11 @@ void printObject (OBJETO *const obj)
 		printf("%c _ %s _ %d\n", obj->type, obj->position, obj->value);
 	}
 }
+
+
+
+
+
 
 /**
  * Função para impressão da coleção de objetos para depuração
@@ -318,6 +411,12 @@ void printCollectionObject (OBJETO **const collectionObj, int size)
 	}
 }
 
+
+
+
+
+
+
 /**
  * Função para impressão de jogadas de uma peça
  */
@@ -328,6 +427,12 @@ void printPlay (OBJETO *obj)
 		printListMov( obj->list, obj->nList);
 	}
 }
+
+
+
+
+
+
 
 /**
  * Função para impressão de jogadas de uma coleção de peças
@@ -343,6 +448,15 @@ void printCollectionPlay (OBJETO **collection, int size)
 		}
 	}
 }
+
+
+
+
+
+
+
+
+
 
 /**
  * Função irá buscar pelo rei do turno
@@ -369,6 +483,16 @@ OBJETO *getKingTable (OBJETO *** const table, int turn)
 	return king;
 }
 
+
+
+
+
+
+
+
+
+
+
 /**
  * Função irá eliminar todas as jogadas atuais da peça para receber novas jogadas para situação atual
  */
@@ -393,7 +517,13 @@ char** clearList (OBJETO *obj)
 	return list;
 }
 
-// ********************************************** Trabalho 08
+
+
+
+
+
+
+
 
 /**
  * Função geradora de lista de movimentos da rodada, dada uma lista de peças

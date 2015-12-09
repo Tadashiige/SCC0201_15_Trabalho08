@@ -1,13 +1,20 @@
 /**
- * Saulo Tadashi Iguei NºUsp 7573548
+ * 								Saulo Tadashi Iguei NºUsp 7573548
+ * 							_______________________________________
  *
- * DATA entrega limite: 08/12/15
+ *																**************************************
+ *																*									 *
+ * 																*	DATA entrega limite: 08/12/15	 *
+ *																*									 *
+ * 																*	SCC0201_01 - ICC2 _ Prof. Moacir *
+ * 																*									 *
+ * 																**************************************
  *
- * SCC0201_01 - ICC2 _ Prof. Moacir
+ *	 					Trabalho 6: Xadrez - Parte 1 (Geração de movimentos)
  *
- * Trabalho 6: Xadrez - Parte 1 (Geração de movimentos)
+ * 				>>>>> Trabalho 7: Xadrez -Parte 2 (Implementação de jogabilidade)
  *
- * >>>>> Trabalho 7: Xadrez -Parte 2 (Implementação de jogabilidade)
+ * 			>>>>> >>>>> Trabalho 8: Xadrez - Parte 3 (Implementação de Inteligência Articial)
  */
 
 /*
@@ -22,6 +29,9 @@
 #include "FEN.h"
 #include "hash.h"
 #include "objeto.h"
+
+
+
 
 //função definidora de pontuação
 int point (char type)
@@ -57,6 +67,11 @@ int point (char type)
 	return point;
 }
 
+
+
+
+
+
 /**
  * Função comparação para ordenação segundo a cor - branco primeiro
  *
@@ -78,6 +93,14 @@ int separaCor (const void* avoid, const void* bvoid)
 	OBJETO **a = (OBJETO**)avoid, **b = (OBJETO**)bvoid;
 	return getType(*a) - getType(*b);
 }
+
+
+
+
+
+
+
+
 
 /**
  *	Função comparação para ordenação segundo critério de desempate.
@@ -101,15 +124,23 @@ int desempate (const void* avoid, const void* bvoid)
 	{
 		if((getType(*a) != 'p' && getType(*a) != 'P') && getType(*a) != getType(*b))
 			return -(getType(*a) - getType(*b));
+
+
 		if(getObjectColumn(*a) == getObjectColumn(*b))
-		{
 			//a posição de armazenamento do tabuleiro é invertido na vertical, mas a notação já corrigiu o erro
 			return (int)(getObjectRow(*a) - getObjectRow(*b));
-		}
+
+
 		return (int)(getObjectColumn(*a) - getObjectColumn(*b));
 	}
+
 	return getValue(*a) - getValue(*b);
 }
+
+
+
+
+
 
 /**
  *	Função comparação para ordenação segundo critério de desempate.
@@ -132,15 +163,23 @@ int sortPlay (const void* a, const void* b)
 
 	if(getNotationColumn(*A) == getNotationColumn(*B))
 	{
+
 		//a posição de armazenamento do tabuleiro é invertido na vertical, mas a notação já corrigiu o erro
 		if(getNotationRow(*A) == getNotationRow(*B))
-		{
 			return point((*A)[strlen(*A) - 1]) - point((*B)[strlen(*B) - 1]) - ((*A)[strlen(*A)-1] - (*B)[strlen(*B)-1]); //resolução para promoão de peões
-		}
+
+
 		return  getNotationRow(*A) - getNotationRow(*B);
 	}
 	return getNotationColumn(*A) - getNotationColumn(*B);
 }
+
+
+
+
+
+
+
 
 /**
  *	Função comparação para ordenação segundo critério de desempate para os tratamentos de colisões de jogadas para mesma casa.
@@ -166,14 +205,22 @@ int sortPlayConflict (const void* a, const void* b)
 	{
 		//a posição de armazenamento do tabuleiro é invertido na vertical, mas a notação já corrigiu o erro
 		if(getNotationRow(*(A->play)) == getNotationRow(*(B->play)))
-		{
 			return point((*(A->play))[strlen(*(A->play)) - 1]) - point((*(B->play))[strlen(*(B->play)) - 1])
 					- ((*(A->play))[strlen(*(A->play))-1] - (*(B->play))[strlen(*(B->play))-1]); //resolução para promoão de peões
-		}
+
+
+
 		return  getNotationRow(*(A->play)) - getNotationRow(*(B->play));
+
 	}
 	return getNotationColumn(*(A->play)) - getNotationColumn(*(B->play));
 }
+
+
+
+
+
+
 
 /**
  * 	Função irá preencher o tabuleiro com as peças dadas por entrada
@@ -199,12 +246,14 @@ void fillTable (OBJETO *** table, OBJETO ** const collection, const int pieces_n
 	{
 		int i;
 
-		//resetar o tabuleiro inteiro
+		//**************************************		resetar o tabuleiro inteiro
 		int j;
 		for(i = 0; i < TABLE_ROWS; i++)
 			for (j = 0; j < TABLE_COLS; j++)
 				table[i][j] = NULL;
 
+
+		// **************************************		preencher o tabuleiro com as peças da coleção
 		int row = 0, col = 0;
 		for(i = 0; i < pieces_num; i++)
 		{
@@ -217,6 +266,12 @@ void fillTable (OBJETO *** table, OBJETO ** const collection, const int pieces_n
 		}
 	}
 }
+
+
+
+
+
+
 
 /**
  * Função imprimi tod.o o tabuleiro na tela
@@ -249,6 +304,11 @@ void printTable (OBJETO *** const table)
 	}
 }
 
+
+
+
+
+
 //conjunto de regras condicionais spara loopings
 int ortSup (int i, int j)
 {
@@ -266,6 +326,11 @@ int ortDir (int i, int j)
 {
 	return j < TABLE_COLS;
 }
+
+
+
+
+
 
 /**
  * Função verificadora de perigo ao rei nas ortogonais
@@ -290,15 +355,27 @@ int _verifyDangerOrto (char piece,
 		int kingCoord,
 		int coord)
 {
+
 	if((piece < 'a') != turn)
 	{
+
+
 		if(piece == queen || piece == rook)
 			return 1;
+
+
 		if(abs(kingCoord - coord) == 1 && piece == king)
 			return 1;
+
+
 	}
 	return 0;
 }
+
+
+
+
+
 
 //conjunto de regras condicionais para loopings
 int diagSupEsq (int i, int j)
@@ -317,6 +394,14 @@ int diagInfDir (int i, int j)
 {
 	return (i < TABLE_ROWS && j < TABLE_COLS);
 }
+
+
+
+
+
+
+
+
 
 /**
  * Função verificadora de perigo ao rei nas diagonais
@@ -342,26 +427,45 @@ int _verifyDangerDiag(char piece,
 		int kingRow,
 		int row)
 {
+
+
 	if((piece < 'a') != turn)
 	{
+
+
 		if(piece == queen || piece == bishop)
 			return 1;
 
+
 		if(abs(kingRow - row) == 1)
 		{
+
+
 			if(piece == peasant)
 			{
+
 				//para oferecer perido o peão deve estar na linha de avanço contra o rei
 				if(row < kingRow == (piece >= 'a'))
 					return 1;
+
+
 				return 0;
 			}
+
 			if(piece == king)
 				return 1;
+
 		}
 	}
 	return 0;
 }
+
+
+
+
+
+
+
 
 /**
  *	Função irá avaliar se há risco para o rei na jogada pretendida
@@ -392,7 +496,8 @@ int __riscoRei (OBJETO *** const table, OBJETO * const obj, int row, int col, in
 		int i, j;
 		int resultado = 0;
 
-		//estabelecer as peças inimigas
+// ===============================================						estabelecer as peças inimigas
+
 		char KING = (turn == 1)? 'K' : 'k';
 		char king = (turn == 0)? 'K' : 'k';
 		char knight = (turn == 0)? 'N' : 'n';
@@ -404,7 +509,8 @@ int __riscoRei (OBJETO *** const table, OBJETO * const obj, int row, int col, in
 		int acrsI = -1; //valor de acrescimo de i (linha)
 		int acrsJ = -1; //valor de acrescimo de j (coluna)
 
-		// ************************************** fazer busca pelas direções em eixos ortonormais
+// ===============================================					fazer busca pelas direções em eixos ortonormais
+
 		int (*funcVOrt[4]) (int i, int j); //vetor de funções condicionais
 		funcVOrt[0] = &ortSup;
 		funcVOrt[1] = &ortInf;
@@ -414,7 +520,8 @@ int __riscoRei (OBJETO *** const table, OBJETO * const obj, int row, int col, in
 		int count, auxRow, auxCol;
 		int kingCoord, coord;
 
-		//buscar para as 4 direções ortonormais
+		// ****************************************					buscar para as 4 direções ortonormais
+
 		for(count = 0; count < 4; count ++)
 		{
 			acrsI *= -1;
@@ -437,16 +544,19 @@ int __riscoRei (OBJETO *** const table, OBJETO * const obj, int row, int col, in
 				}
 			}
 		}
-		// ************************************** fazer busca pelas direções das diagonais
+
+// ===============================================					fazer busca pelas direções em eixos diagonais
+
 		int (*funcVDiag[4]) (int i, int j); //vetor de funções condicionais
 		funcVDiag[0] = &diagSupEsq;
 		funcVDiag[1] = &diagSupDir;
 		funcVDiag[2] = &diagInfEsq;
 		funcVDiag[3] = &diagInfDir;
-		//int count;
-		/*int */acrsI = 1; //valor de acrescimo de i (linha)
-		/*int */acrsJ = -1; //valor de acrescimo de j (coluna)
-		//procurar pelas 4 direções diagonais
+		acrsI = 1; //valor de acrescimo de i (linha)
+		acrsJ = -1; //valor de acrescimo de j (coluna)
+
+		// ***************************************					procurar pelas 4 direções diagonais
+
 		for(count = 0; count < 4; count ++)
 		{
 			acrsI *= pow(-1, (count == 2)); //valor deve ser i = 1, 2 vezes e i = -1, 2 vezes
@@ -464,15 +574,21 @@ int __riscoRei (OBJETO *** const table, OBJETO * const obj, int row, int col, in
 				}
 			}
 		}
-		// ************************************** fazer busca pelas rotas do cavalo
-		/*int*/auxRow = -1, auxCol = 1;
+
+// ===============================================					fazer busca pelas rotas do cavalo
+
+		auxRow = -1, auxCol = 1;
 		for(count = 0; count < 4; count++)
 		{
 			auxRow *= pow(-1, (count == 2));
 			auxCol *= -1;
 			OBJETO *auxObj = NULL;
+
+			// **************************************
+
 			//o movimento do cavalo é em L, assim sempre inversamente são avanços ou retrocessos de coordenada de 2 por 1.
 			//verificar se na posição tal reside um cavalo inimigo
+
 			if(TABLE_ROWS > kingRow + auxRow*2 && TABLE_COLS > kingCol + auxCol*1 &&
 					kingRow + auxRow*2 >= 0 && kingCol + auxCol*1 >= 0 &&
 					(auxObj = table[kingRow + auxRow*2][kingCol + auxCol*1]) != NULL &&
@@ -490,13 +606,24 @@ int __riscoRei (OBJETO *** const table, OBJETO * const obj, int row, int col, in
 	return 1;
 }
 
+
+
+
+
+
+
+
 /**
  * Função irá chamar uma função que realiza a busca pela presença de risco ao rei para
  * uma data posição pretendida da peça.
  */
 int riscoRei (OBJETO *** const table, OBJETO * const obj, int row, int col, int turn)
 {
-	//mudar o tabuleiro para a posição pretendida, assim guardar as variações para poder reverter
+
+
+/* =============================================
+ *				mudar o tabuleiro para a posição pretendida, assim guardar as variações para poder reverter
+ */
 	OBJETO *removido = table[row][col];
 	table[row][col] = obj;
 	int rowVeridico = 7 - getObjectRow(obj);
@@ -507,7 +634,12 @@ int riscoRei (OBJETO *** const table, OBJETO * const obj, int row, int col, int 
 	char KING = (turn == 1)? 'K' : 'k';
 
 	int i, j;
-	//procurar pelo rei
+
+
+
+
+// =============================================						procurar pelo rei
+
 	for (i = 0; i < TABLE_ROWS; i++)
 	{
 		for( j = 0; j < TABLE_COLS; j++)
@@ -533,20 +665,31 @@ int riscoRei (OBJETO *** const table, OBJETO * const obj, int row, int col, int 
 	}
 	int res =  __riscoRei (table, obj, row, col, turn, kingRow, kingCol);
 
-	//reverter o tabuleiro para o estado anterior
+
+
+
+
+// ==============================================						reverter o tabuleiro para o estado anterior
+
 	table[rowVeridico][colVeridico] = table[row][col];
 	table[row][col] = removido;
 
-//printf("%c[%d][%d] -> [%d][%d]\tperigo? %s\n", getType(obj), 7-getObjectRow(obj), getObjectColumn(obj), row, col,
-//		(res)?"sim":"não");
-
 	return res;
-	//int result = __riscoRei (table, obj, row, col, turn);
-	//if(result) printf("rei em perigo_[%d][%d]\n", row, col);
-	//return result;
 }
 
-// ************************************************** Trabalho 07
+
+
+
+
+
+
+
+// ************************************************** Trabalho 07 *******************************
+
+
+
+
+
 
 /**
  * Função irá validar a jogada do input e armazená-la na estrutura PLAY
@@ -575,7 +718,9 @@ PLAY inputPlay (FEN const* fen, OBJETO *** const table, int turn, int fullTurn)
 	play.fromCol = 8;
 	if(table != NULL)
 	{
-		//receber jogada do usuário até que ela seja válida
+
+// =================================================					receber jogada do usuário até que ela seja válida
+
 		while(validate)
 		{
 			int row, col;
@@ -583,7 +728,11 @@ PLAY inputPlay (FEN const* fen, OBJETO *** const table, int turn, int fullTurn)
 			fscanf(stdin, "%s", cmd);
 			col = (int)(cmd[0] - 'a');
 			row = (int)('8' - cmd[1]);
-			//coordenadas válidas e peça válida para o turno
+
+
+
+// =================================================					coordenadas válidas e peça válida para o turno
+
 			if(col >= 0 && col < TABLE_COLS && row >= 0 && row < TABLE_ROWS &&
 					table[row][col] != NULL &&
 					(getType(table[row][col]) < 'a') == turn)
@@ -591,12 +740,18 @@ PLAY inputPlay (FEN const* fen, OBJETO *** const table, int turn, int fullTurn)
 				int i;
 				char **list = getList (table[row][col]);
 				int nList = getNList (table[row][col]);
-				//buscar jogada listada nas possibilidades
+
+
+				// *********************************					buscar jogada listada nas possibilidades
 				for(i = 0; i < nList; i++)
 				{
-					//ajuste para comparação, caso haja promoção na notação ela não termina em número, nem é en passant.
+
+					// ####################
+					//		ajuste para comparação, caso haja promoção na notação ela não termina em número, nem é en passant.
 					int adj = (list[i][strlen(list[i]) - 1] >= 'B' && list[i][strlen(list[i]) - 1] <= 'R');
-					//existe jogada na lista da peça dada pela coordenada do destino
+
+
+					// ##################### 			existe jogada na lista da peça dada pela coordenada do destino
 					if(!strncmp(list[i] + (strlen(list[i]) - 1 - 1 - adj), &(cmd[2]), 2))
 					{
 						play.obj = table[row][col];
@@ -615,6 +770,8 @@ PLAY inputPlay (FEN const* fen, OBJETO *** const table, int turn, int fullTurn)
 						//se encontrou a jogada não precisa percorrer o resto da lista
 						break;
 					}
+
+
 				}//for
 			}
 			if(validate)
@@ -623,6 +780,13 @@ PLAY inputPlay (FEN const* fen, OBJETO *** const table, int turn, int fullTurn)
 	}//if table != NULL
 	return play;
 }
+
+
+
+
+
+
+
 
 /**
  * Função verifica as condições para fim de jogo
@@ -651,6 +815,14 @@ int verifyGameState (OBJETO *** const table, OBJETO **const fullCollection, OBJE
 			16 * regraTriplaRepeticao (table, fen);
 }
 
+
+
+
+
+
+
+
+
 /**
  * Função verifica cheque-mate
  * DESCRIÇÃO:
@@ -675,10 +847,15 @@ int chequeMate (OBJETO *** const table, OBJETO ** const collection, const int pi
 		int result = 0;
 		for(i = 0; i < pieces_num; i++)
 		{
+
 			//buscar número de jogadas para cada peça
 			if(getNList(collection[i]))
 				result++;
+
+
 		}
+
+
 		//se não existe jogadas possíveis e o rei está em cheque, result = 0
 		OBJETO *king = getKingTable(table, turn);
 		if(!result && riscoRei(table, king, 7 - getObjectRow(king), getObjectColumn(king), turn))
@@ -686,6 +863,14 @@ int chequeMate (OBJETO *** const table, OBJETO ** const collection, const int pi
 	}
 	return 0;
 }
+
+
+
+
+
+
+
+
 
 /**
  * Função verifica empate por afogamento
@@ -723,6 +908,16 @@ int regraAfogamento (OBJETO *** const table, OBJETO **const collection, const in
 	return 0;
 }
 
+
+
+
+
+
+
+
+
+
+
 /**
  * Função verifica condição de empate por regra dos 50 movimentos
  * DESCRIÇÃO:
@@ -739,8 +934,16 @@ int regra50movimento (FEN *fen)
 {
 	if(fen != NULL && fen->halfTurn >= 50)
 		return 1;
+
 	return 0;
 }
+
+
+
+
+
+
+
 
 /**
  * Função verifica empate por falta de material
@@ -768,6 +971,8 @@ int regraMaterial (OBJETO ** const collection, const int pieces_num)
 		{
 			sum += getValue(collection[i]);
 		}
+
+
 		//O cavalo e Bispo tem os mesmos pontos (325)
 		if( sum == 2*point('K') + point('N'))
 			return 1;
@@ -775,10 +980,20 @@ int regraMaterial (OBJETO ** const collection, const int pieces_num)
 	return 0;
 }
 
+
+
+
+
+
 /**
  * Função verifica empate por Tripla Repetição
  * DESCRIÇÃO:
+ *		Função irá gerar um código hash para cada situação de tabuleiro
+ *		turnos, roques e en passant para inseri-lo na tabela hash, de forma
+ *		a avaliar as repetições de jogadas.
  *
+ *		Dada 3 repetição de condição de jogo (código hashing iguais) o
+ *		jogo é dado empatado como Tripla Repetição
  *
  * 	PARAMETROS:
  *		FEN *fen - ponteiro para estrutura da notação fen
@@ -794,7 +1009,7 @@ int regraTriplaRepeticao (OBJETO *** const table, FEN *fen)
 		int num;
 		unsigned long long int cod = genCode (table, fen);
 		num = insertHash(fen->hash, cod);
-//printf("codigo Hash: %llu\nnum: %d\n", cod, num);
+
 		//contagem a partir do Zero implica que existe inserção do codigo, assim será +1
 			//na proxima igual será 1 (0 + 1), assim no 2 existem 3 codigos iguais.
 		if(num > 1)

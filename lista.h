@@ -1,3 +1,21 @@
+/**
+ * 								Saulo Tadashi Iguei NºUsp 7573548
+ * 							_______________________________________
+ *
+ *																**************************************
+ *																*									 *
+ * 																*	DATA entrega limite: 08/12/15	 *
+ *																*									 *
+ * 																*	SCC0201_01 - ICC2 _ Prof. Moacir *
+ * 																*									 *
+ * 																**************************************
+ *
+ *	 					Trabalho 6: Xadrez - Parte 1 (Geração de movimentos)
+ *
+ * 				>>>>> Trabalho 7: Xadrez -Parte 2 (Implementação de jogabilidade)
+ *
+ * 			>>>>> >>>>> Trabalho 8: Xadrez - Parte 3 (Implementação de Inteligência Articial)
+ */
 
 #ifndef __LISTA_H_
 #define __LISTA_H_
